@@ -87,7 +87,11 @@ def ready_for_insert(movies: list) -> None:
 
 if __name__ == '__main__':
 
-    # crawled_data = movie_crawler(1, 68)
-    crawled_data = series_crawler(1, 68)
-    movies = remove_duplicate(crawled_data)
+    crawled_movies = movie_crawler(11, 20)
+    crawled_series = series_crawler(11, 20)
+
+    movies = remove_duplicate(crawled_movies)
+    series = remove_duplicate(crawled_series)
+
     ready_for_insert(movies)
+    ready_for_insert(series)
