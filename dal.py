@@ -103,12 +103,18 @@ def get_links(records: list):
         movie_name = element[2]
         response = requests.get(url)
         links = re.findall(r'https://.*kingupload.*mkv', response.text)
+        qualites = find_movie_quality(links)
 
         if links:
-            return links, movie_name
+            return links, movie_name, qualites
         
         else:
             new_links = re.findall(r'https://.*kingupload.*', response.text)
+            qualites = find_movie_quality(new_links)
 
-            return new_links, movie_name
+            return new_links, movie_name, qualites
     
+
+def find_movie_quality(links: list) -> None:
+    quality = re.findall(r'[0-9]{3,4}[p]', ' '.join(links))
+    return quality
