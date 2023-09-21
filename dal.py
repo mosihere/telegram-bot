@@ -31,7 +31,6 @@ def is_duplicate(movie_name):
     try:
         cursor.execute(sql, (movie_name, ))
         movie = cursor.fetchone()
-        # print(movie)
         if movie:
             return True
         
@@ -109,10 +108,9 @@ def get_links(records: list):
             return links, movie_name, qualites
         
         else:
-            new_links = re.findall(r'https://.*kingupload.*', response.text)
-            qualites = find_movie_quality(new_links)
-
-            return new_links, movie_name, qualites
+            new_links = re.findall(r'https://.*kingupload.*[0-9]/', response.text)
+            seasons = find_series_season(new_links)
+            return new_links, movie_name, seasons
     
 
 def find_movie_quality(links: list) -> None:
@@ -120,3 +118,10 @@ def find_movie_quality(links: list) -> None:
     quality = re.findall(r'[0-9]{3,4}[p]', ' '.join(links))
 
     return quality
+
+
+def find_series_season(links: list):
+   
+   season = re.findall(r'S\d{2}', ' '.join(links))
+
+   return season
