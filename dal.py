@@ -116,5 +116,7 @@ def get_links(records: list):
     
 
 def find_movie_quality(links: list) -> None:
+
     quality = re.findall(r'[0-9]{3,4}[p]', ' '.join(links))
+
     return quality
