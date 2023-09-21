@@ -47,7 +47,8 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 def handle_response(text: str) -> str:
 
     links_and_quality = list()
-    
+    links_and_season = list()
+
     records = read_record(text)
 
     try:
@@ -66,10 +67,21 @@ def handle_response(text: str) -> str:
             return download_links
         
         else:
+
+            season = quality
+
+            series_data = list(zip(links, season))
+
+            for link, season in series_data:
+                links_and_quality.append(season)
+                links_and_quality.append(link)
+
             links.insert(0, f'🍿{movie_name.title()}\n\n')
             links.insert(0, '🎞️ Differenet Qualites 🎞️\n\n' )
 
-            return '\n----------------------------------\n'.join(links)
+            download_links = '\n----------------------------------\n'.join(series_data)
+            
+            return download_links
         
     except TypeError:
         return '😔 We Do not have that Movie yet!'
