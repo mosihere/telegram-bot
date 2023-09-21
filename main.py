@@ -126,4 +126,4 @@ if __name__ == '__main__':
 
     # Polls the bot
     print('Bot is up and running...')
-    app.run_polling(timeout=20)
+    app.run_polling(timeout=5)
