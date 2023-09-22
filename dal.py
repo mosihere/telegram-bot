@@ -107,10 +107,10 @@ def get_links(records: list):
         qualities = find_movie_quality(links)
         get_seasons = find_series_season(links_page)
 
-        sorted_season = sorted(list(set(get_seasons)))
-        sorted_links_page = sorted(list(set(links_page)))
-        
         if links and links_page and get_seasons and qualities:
+            sorted_season = list(set(get_seasons))
+            sorted_links_page = list(set(links_page))
+            
             return links, movie_name, qualities, sorted_links_page, sorted_season
         
         elif links and links_page and not get_seasons:
