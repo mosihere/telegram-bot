@@ -102,16 +102,26 @@ def get_links(records: list):
         movie_name = element[2]
         response = requests.get(url)
         links = re.findall(r'https://.*kingupload.*mkv', response.text)
-        qualites = find_movie_quality(links)
+        links_page = re.findall(r'https://.*kingupload.*[0-9]/', response.text)
 
-        if links:
-            return links, movie_name, qualites
+        qualities = find_movie_quality(links)
+        get_seasons = find_series_season(links_page)
+
+        sorted_season = sorted(list(set(get_seasons)))
+        sorted_links_page = sorted(list(set(links_page)))
+        
+        if links and links_page and get_seasons and qualities:
+            return links, movie_name, qualities, sorted_links_page, sorted_season
+        
+        elif links and links_page and not get_seasons:
+            return links, movie_name, qualities
+        
+        elif links_page and not links:
+            return links_page, movie_name, get_seasons
         
         else:
-            new_links = re.findall(r'https://.*kingupload.*[0-9]/', response.text)
-            seasons = find_series_season(new_links)
-            return new_links, movie_name, seasons
-    
+           return ''
+
 
 def find_movie_quality(links: list) -> None:
 
