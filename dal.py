@@ -113,7 +113,7 @@ def get_links(records: list):
             
             return links, movie_name, qualities, sorted_links_page, sorted_season
         
-        elif links and links_page and not get_seasons:
+        elif links or links_page and not get_seasons:
             return links, movie_name, qualities
         
         elif links_page and not links:
