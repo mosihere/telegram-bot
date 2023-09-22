@@ -105,6 +105,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
     message_type = update.message.chat.type
     text = update.message.text.replace(' ', '-')
+    print(text)
 
     print(f'User {update.message.chat.id} in {message_type}: "{text}"')
 
@@ -112,7 +113,9 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     if message_type == 'group':
 
         if BOT_USERNAME in text:
-            new_text = text.replace(BOT_USERNAME, '').strip()
+            print(text)
+            new_text = text.replace(BOT_USERNAME, '').strip().lstrip('-')
+            print(new_text)
             response = handle_response(new_text)
 
         else:
