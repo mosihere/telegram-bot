@@ -51,41 +51,54 @@ def handle_response(text: str) -> str:
 
     records = read_record(text)
 
-    try:
-        links, movie_name, quality = get_links(records)
+    if not records:
+        return 'We Do Not Have That Movie Yet 😔'
+    
+    movie_data = get_links(records)
 
-        data = list(zip(links, quality))
-        if data:
+    
+    if len(movie_data) == 3:
+
+        if movie_data[2][0] in ['480p', '720p', '1080p', '2160p']:
+            links, movie_name, qualities = movie_data
+            data = list(zip(links, qualities))
             for link, quality in data:
                 links_and_quality.append(quality)
                 links_and_quality.append(link)
 
             links_and_quality.insert(0, f'🍿{movie_name.title()}\n\n')
-            links_and_quality.insert(0, '🎞️ Differenet Qualites 🎞️\n\n' )
+            links_and_quality.insert(0, '🎞️ Differenet Qualites 🎞️\n\n')
             download_links = f'\n----------------------------------\n'.join(links_and_quality)
 
             return download_links
         
         else:
+            links, movie_name, seasons = movie_data
+            data = list(zip(links, seasons))
+            for link, season in data:
+                links_and_season.append(season)
+                links_and_season.append(link)
 
-            season = quality
+            links_and_season.insert(0, f'🍿{movie_name.title()}\n\n')
+            links_and_season.insert(0, '🎞️ Differenet Qualites 🎞️\n\n')
+            download_links = f'\n----------------------------------\n'.join(links_and_season)
 
-            series_data = list(zip(links, season))
-
-            for link, season in series_data:
-                links_and_quality.append(season)
-                links_and_quality.append(link)
-
-            links.insert(0, f'🍿{movie_name.title()}\n\n')
-            links.insert(0, '🎞️ Differenet Qualites 🎞️\n\n' )
-
-            download_links = '\n----------------------------------\n'.join(series_data)
-            
             return download_links
         
-    except TypeError:
-        return '😔 We Do not have that Movie yet!'
+    else:
+        links, movie_name, qualities, links_page, seasons = movie_data
 
+        links_and_season_info = list(zip(links_page, seasons))
+
+        for link, season in links_and_season_info:
+            links_and_season.append(season)
+            links_and_season.append(link)
+
+        links_and_season.insert(0, f'🍿{movie_name.title()}\n\n')
+        links_and_season.insert(0, '🎞️ Differenet Qualites 🎞️\n\n')
+        download_links = f'\n----------------------------------\n'.join(links_and_season)
+
+        return download_links
 
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
