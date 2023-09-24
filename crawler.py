@@ -1,5 +1,6 @@
 import re
 import time
+import datetime
 import requests
 from dal import create_record, is_duplicate
 
@@ -95,3 +96,6 @@ if __name__ == '__main__':
 
     ready_for_insert(movies)
     ready_for_insert(series)
+
+    with open('crawl.log', 'a') as f:
+        f.write(f'Crawled Successfully on {datetime.datetime.now()}\n')
