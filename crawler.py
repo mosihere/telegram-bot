@@ -56,6 +56,7 @@ def remove_duplicate(movie_list: list) -> list:
 
 
 def ready_for_insert(movies: list) -> None:
+    duplicate_counter = 0
     movies_data = list()
     movies_with_published_date = list()
 
@@ -66,9 +67,8 @@ def ready_for_insert(movies: list) -> None:
         movie_name = movie_name[-1]
 
         if is_duplicate(movie_name):
-            continue
-
-        
+            duplicate_counter += 1
+ 
         published_date:str = movie_name.split('-')
         published_date = published_date[-1]
 
@@ -83,19 +83,20 @@ def ready_for_insert(movies: list) -> None:
     create_record(movies_data)
     create_record(movies_with_published_date, has_published_date=True)
 
+    return duplicate_counter
 
 
 
 if __name__ == '__main__':
 
-    crawled_movies = movie_crawler(1, 10)
-    crawled_series = series_crawler(1, 10)
+    crawled_movies = movie_crawler(1, 2)
+    crawled_series = series_crawler(1, 2)
 
     movies = remove_duplicate(crawled_movies)
     series = remove_duplicate(crawled_series)
 
-    ready_for_insert(movies)
-    ready_for_insert(series)
+    insert_movies = ready_for_insert(movies)
+    insert_series = ready_for_insert(series)
 
     with open('crawl.log', 'a') as f:
-        f.write(f'Crawled Successfully on {datetime.datetime.now()}\n')
+        f.write(f'Crawled Successfully on {datetime.datetime.now()}\n{insert_movies} duplicate movies found.\n{insert_series} duplicate series found.\n\n')
