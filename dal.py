@@ -44,19 +44,18 @@ def create_record(val: list, has_published_date = False):
 
     if has_published_date:
        try:
-        sql_command = """
-            INSERT INTO movies (
-                url, name, published_at
-            )
-            VALUES (%s, %s, %s) """
-        
-        cursor = db.cursor()
-        cursor.executemany(sql_command, val)
-        db.commit()
+            sql_command = """
+                INSERT INTO movies (
+                    url, name, published_at
+                )
+                VALUES (%s, %s, %s) """
+            
+            cursor = db.cursor()
+            cursor.executemany(sql_command, val)
+            db.commit()
 
        except mysql.connector.Error as err:
-           print('Duplicate Entries Found!')
-           pass
+           return f'We faced an error: {err}'
           
     else:
         try:
@@ -71,9 +70,8 @@ def create_record(val: list, has_published_date = False):
             db.commit()
         
         except mysql.connector.Error as err:
-           print('Duplicate Entries Found!')
-           pass
-        
+           return f'We faced an error: {err}'
+
 
 def read_record(movie_name: str) -> None:
    
