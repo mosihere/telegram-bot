@@ -15,20 +15,24 @@ try:
         database="movie"
 )
 
-  
 except mysql.connector.Error as err:
   if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
     print("Something is wrong with your user name or password")
+
   elif err.errno == errorcode.ER_BAD_DB_ERROR:
     print("Database does not exist")
+
   else:
     print(err)
 
+
+
 def is_duplicate(movie_name):
+    
     sql = """ SELECT * FROM movies WHERE name=%s """
 
-    cursor = db.cursor()
     try:
+        cursor = db.cursor()
         cursor.execute(sql, (movie_name, ))
         movie = cursor.fetchone()
         if movie:
