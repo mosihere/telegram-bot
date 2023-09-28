@@ -6,24 +6,26 @@ from mysql.connector import errorcode
 
 
 
+def connect_to_database():
 
-try:
-    db = mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password=os.environ['DB_PASS'],
-        database="movie"
-)
+    try:
+        db = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            password=os.environ['DB_PASS'],
+            database="movie"
+    )
+        return db
+    
+    except mysql.connector.Error as err:
+        if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+            return "Something is wrong with your user name or password"
 
-except mysql.connector.Error as err:
-  if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-    print("Something is wrong with your user name or password")
+        elif err.errno == errorcode.ER_BAD_DB_ERROR:
+            return "Database does not exist"
 
-  elif err.errno == errorcode.ER_BAD_DB_ERROR:
-    print("Database does not exist")
-
-  else:
-    print(err)
+        else:
+            return err
 
 
 
@@ -32,9 +34,11 @@ def is_duplicate(movie_name):
     sql = """ SELECT * FROM movies WHERE name=%s """
 
     try:
-        cursor = db.cursor()
+        cnx = connect_to_database()
+        cursor = cnx.cursor()
         cursor.execute(sql, (movie_name, ))
         movie = cursor.fetchone()
+        cnx.close()
         if movie:
             return True
         
@@ -53,10 +57,11 @@ def create_record(val: list, has_published_date = False):
                     url, name, published_at
                 )
                 VALUES (%s, %s, %s) """
-            
-            cursor = db.cursor()
+            cnx = connect_to_database()
+            cursor = cnx.cursor()
             cursor.executemany(sql_command, val)
-            db.commit()
+            cnx.commit()
+            cnx.close()
 
        except mysql.connector.Error as err:
            return f'We faced an error: {err}'
@@ -69,9 +74,11 @@ def create_record(val: list, has_published_date = False):
             )
             VALUES (%s, %s) """
         
-            cursor = db.cursor()
+            cnx = connect_to_database()
+            cursor = cnx.cursor()
             cursor.executemany(sql_command, val)
-            db.commit()
+            cnx.commit()
+            cnx.close()
         
         except mysql.connector.Error as err:
            return f'We faced an error: {err}'
@@ -83,17 +90,20 @@ def read_record(movie_name: str) -> None:
 
     in_between_param = ("%" + movie_name + "%")
     start_with_param = (movie_name + "%")
-    cursor = db.cursor()
+    cnx = connect_to_database()
+    cursor = cnx.cursor()
 
     cursor.execute(sql_command, (start_with_param, ))
     movies = cursor.fetchall()
 
     if movies:
+        cnx.close()
         return movies
     
     else:
         cursor.execute(sql_command, (in_between_param, ))
         movies = cursor.fetchall()
+        cnx.close()
         return movies
 
 
