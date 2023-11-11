@@ -8,7 +8,7 @@ from dal import create_record, is_duplicate
 # Careful! Just run this module when you want crawl movies.
 
 
-BASE_URL = "https://www.f2m12.top"
+BASE_URL = "https://www.f2m2.fun"
 
 
 
@@ -68,6 +68,7 @@ def ready_for_insert(movies: list) -> None:
 
         if is_duplicate(movie_name):
             duplicate_counter += 1
+            continue
  
         published_date:str = movie_name.split('-')
         published_date = published_date[-1]
@@ -80,17 +81,19 @@ def ready_for_insert(movies: list) -> None:
             data = (url, movie_name)
             movies_data.append(data)
 
+    crawled_counter = len(movies_data) + len(movies_with_published_date)
+
     create_record(movies_data)
     create_record(movies_with_published_date, has_published_date=True)
 
-    return duplicate_counter
+    return duplicate_counter, crawled_counter
 
 
 
 if __name__ == '__main__':
 
-    crawled_movies = movie_crawler(1, 10)
-    crawled_series = series_crawler(1, 10)
+    crawled_movies = movie_crawler(1, 3)
+    crawled_series = series_crawler(1, 3)
 
     movies = remove_duplicate(crawled_movies)
     series = remove_duplicate(crawled_series)
@@ -99,4 +102,4 @@ if __name__ == '__main__':
     insert_series = ready_for_insert(series)
 
     with open('crawl.log', 'a') as f:
-        f.write(f'Crawled Successfully on {datetime.datetime.now()}\n{insert_movies} duplicate movies found.\n{insert_series} duplicate series found.\n\n')
+        f.write(f'Crawled Successfully on {datetime.datetime.now()}\n{insert_movies[1] + insert_series[1]} New Movies and Series\n{insert_movies[0]} duplicate movies found.\n{insert_series[0]} duplicate series found.\n\n')
