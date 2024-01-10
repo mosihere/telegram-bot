@@ -31,7 +31,7 @@ def connect_to_database():
 
 def is_duplicate(movie_name):
     
-    sql = """ SELECT * FROM movies WHERE name=%s """
+    sql = """ SELECT id FROM movies WHERE name=%s """
 
     try:
         cnx = connect_to_database()
@@ -86,7 +86,7 @@ def create_record(val: list, has_published_date = False):
 
 def read_record(movie_name: str) -> None:
    
-    sql_command = """SELECT * FROM movies WHERE name LIKE %s """
+    sql_command = """SELECT * from movies WHERE name LIKE %s """
 
     in_between_param = ("%" + movie_name + "%")
     start_with_param = (movie_name + "%")
