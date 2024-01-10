@@ -94,7 +94,7 @@ def read_record(movie_name: str) -> None:
     cursor = cnx.cursor()
 
     cursor.execute(sql_command, (start_with_param, ))
-    movies = cursor.fetchall()
+    movies = cursor.fetchone()
 
     if movies:
         cnx.close()
@@ -102,37 +102,35 @@ def read_record(movie_name: str) -> None:
     
     else:
         cursor.execute(sql_command, (in_between_param, ))
-        movies = cursor.fetchall()
+        movies = cursor.fetchone()
         cnx.close()
         return movies
 
 
-def get_links(records: list):
+def get_links(record: list):
+    url = record[1]
+    movie_name = record[2]
+    response = requests.get(url)
+    links = re.findall(r'https://.*kingupload.*mkv', response.text)
+    links_page = re.findall(r'https://.*kingupload.*[0-9]/', response.text)
 
-    for element in records:
-        url = element[1]
-        movie_name = element[2]
-        response = requests.get(url)
-        links = re.findall(r'https://.*kingupload.*mkv', response.text)
-        links_page = re.findall(r'https://.*kingupload.*[0-9]/', response.text)
+    qualities = find_movie_quality(links)
+    get_seasons = find_series_season(links_page)
 
-        qualities = find_movie_quality(links)
-        get_seasons = find_series_season(links_page)
-
-        if links and links_page and get_seasons and qualities:
-            sorted_season = sorted(list(set(get_seasons)))
-            sorted_links_page = sorted(list(set(links_page)))
-            
-            return links, movie_name, qualities, sorted_links_page, sorted_season
+    if links and links_page and get_seasons and qualities:
+        sorted_season = sorted(list(set(get_seasons)))
+        sorted_links_page = sorted(list(set(links_page)))
         
-        elif links or links_page and not get_seasons:
-            return links, movie_name, qualities
-        
-        elif links_page and not links:
-            return links_page, movie_name, get_seasons
-        
-        else:
-           return ''
+        return links, movie_name, qualities, sorted_links_page, sorted_season
+    
+    elif links or links_page and not get_seasons:
+        return links, movie_name, qualities
+    
+    elif links_page and not links:
+        return links_page, movie_name, get_seasons
+    
+    else:
+        return ''
 
 
 def find_movie_quality(links: list) -> None:
