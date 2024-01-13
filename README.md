@@ -13,4 +13,13 @@ A telegram bot created using Python -> Python-telegram-bot library
 ## Sample
 
 Searching Movie:
-[Movie Search Result](images/sc2.png)
+<div align="left" >
+<img loading="lazy" style="width:400px; height:600px" src="images/sc2.png">
+</div>
+
+<br>
+
+Searching Series:
+<div align="left" >
+<img loading="lazy" style="width:400px; height:600px" src="images/sc1.png">
+</div>
