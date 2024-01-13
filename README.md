@@ -11,3 +11,6 @@ A telegram bot created using Python -> Python-telegram-bot library
 5. Different Codecs
 
 ## Sample
+
+Searching Movie:
+[Movie Search Result](images/sc2.png)
