@@ -2,7 +2,7 @@ import re
 import time
 import datetime
 import requests
-from dal import create_record, is_duplicate
+from dal import is_duplicate, create_record_for_movies
 
 
 # Careful! Just run this module when you want crawl movies.
@@ -83,8 +83,8 @@ def ready_for_insert(movies: list) -> None:
 
     crawled_counter = len(movies_data) + len(movies_with_published_date)
 
-    create_record(movies_data)
-    create_record(movies_with_published_date, has_published_date=True)
+    create_record_for_movies(movies_data)
+    create_record_for_movies(movies_with_published_date, has_published_date=True)
 
     return duplicate_counter, crawled_counter
 
