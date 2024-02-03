@@ -1,8 +1,11 @@
 import os
 import re
+import time
 import requests
 import mysql.connector
+from typing import List, Dict
 from mysql.connector import errorcode
+
 
 
 
@@ -28,10 +31,9 @@ def connect_to_database():
             return err
 
 
-
 def is_duplicate(movie_name):
     
-    sql = """ SELECT id FROM movies WHERE name=%s """
+    sql = """ SELECT id FROM movies_movie WHERE name=%s """
 
     try:
         cnx = connect_to_database()
@@ -48,12 +50,12 @@ def is_duplicate(movie_name):
         return 'SomeThing failed.'
 
 
-def create_record(val: list, has_published_date = False):
+def create_record_for_movies(val: list, has_published_date = False):
 
     if has_published_date:
        try:
             sql_command = """
-                INSERT INTO movies (
+                INSERT INTO movies_movie (
                     url, name, published_at
                 )
                 VALUES (%s, %s, %s) """
@@ -84,9 +86,28 @@ def create_record(val: list, has_published_date = False):
            return f'We faced an error: {err}'
 
 
-def read_record(movie_name: str) -> None:
+def create_record_for_movie_links(val: tuple) -> int | str:
+    try:
+        print(val)
+        sql_command = """
+            INSERT INTO movies_link (
+                link, quality, movie_id, codec
+            )
+            VALUES (%s, %s, %s, %s) """
+        cnx = connect_to_database()
+        cursor = cnx.cursor()
+        cursor.execute(sql_command, val)
+        cnx.commit()
+        cnx.close()
+        return cursor.lastrowid
+    
+    except mysql.connector.Error as err:
+        return f'We faced an error: {err}'
+
+
+def read_record_from_movies(movie_name: str) -> None:
    
-    sql_command = """SELECT * from movies WHERE name LIKE %s """
+    sql_command = """SELECT * from movies_movie WHERE name LIKE %s """
 
     in_between_param = ("%" + movie_name + "%")
     start_with_param = (movie_name + "%")
@@ -107,30 +128,38 @@ def read_record(movie_name: str) -> None:
         return movies
 
 
-def get_links(record: list):
-    url = record[1]
-    movie_name = record[2]
+def get_movie_data(record: tuple):
+    id = record[0]
+    name = record[1]
+    url = record[2]
+    print(url)
     response = requests.get(url)
     links = re.findall(r'https://.*kingupload.*mkv', response.text)
-    links_page = re.findall(r'https://.*kingupload.*[0-9]/', response.text)
+    # links_page = re.findall(r'https://.*kingupload.*[0-9]/', response.text)
 
-    qualities = find_movie_quality(links)
-    get_seasons = find_series_season(links_page)
+    for link in links:
+        quality = re.findall(r'[0-9]{3,4}[p]', link)
+        if not quality:
+            continue
+        quality = quality[0]
+        codec = 'x265' if 'x265' in link else 'x264'
+        data = (link, quality, id, codec)
+        create_record_for_movie_links(data)
+        time.sleep(2)
+    
 
-    if links and links_page and get_seasons and qualities:
-        sorted_season = sorted(list(set(get_seasons)))
-        sorted_links_page = sorted(list(set(links_page)))
-        
-        return links, movie_name, qualities, sorted_links_page, sorted_season
-    
-    elif links or links_page and not get_seasons:
-        return links, movie_name, qualities
-    
-    elif links_page and not links:
-        return links_page, movie_name, get_seasons
-    
-    else:
-        return ''
+def movie_data_normalizer(movies: List[Dict]) -> list:
+    data = list()
+    for movie in movies:
+        movie_info = {
+        'link': f'{movie.get("link")}\n',
+        'quality_and_codec': f'{movie.get("quality")} - {movie.get("codec")}',
+        'name': movie.get('movie').get('name'),
+        'published_at': movie.get('movie').get('published_at'),
+        }
+        data.append(movie_info)
+
+    return data
 
 
 def find_movie_quality(links: list) -> None:
@@ -145,3 +174,25 @@ def find_series_season(links: list):
    season = re.findall(r'S\d{2}', ' '.join(links))
 
    return season
+
+
+def get_movies():
+    sql_command = """ SELECT * FROM movies_movie WHERE id > 460"""
+    conx = connect_to_database()
+    cursor = conx.cursor()
+    cursor.execute(sql_command)
+    movies = cursor.fetchall()
+    return movies
+
+
+def movie_endpoint(name: str):
+    response = requests.get(f'http://127.0.0.1:8000/movies/links/?movie_name={name}')
+    return response.json()
+
+
+
+
+movies = get_movies()
+for movie in movies:
+    links = get_movie_data(movie)
+    print(links)
