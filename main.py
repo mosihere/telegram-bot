@@ -1,5 +1,5 @@
 import os
-from dal import read_record, get_links
+from dal import movie_endpoint, movie_data_normalizer
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters, InlineQueryHandler, CallbackQueryHandler
 
@@ -22,7 +22,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     # reply_markup = InlineKeyboardMarkup(keyboard)
 
-    await update.message.reply_text('🎥 Search For Movie\n\n✅john wick\n\n🔍What Movie You Want: ')
+    await update.message.reply_text('🎥 چه فیلمی میخوای\n\n✅john wick\n\n🔍سرچش کن: ')
 
 
 
@@ -39,66 +39,33 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    await update.message.reply_text('You can Ask me for finding Movies :)\n\n✅ -> evil dead')
+    await update.message.reply_text('من میتونم لینک دانلود مستقیم فیلم بهت بدم بدون سانسور :)\n\n✅ -> evil dead')
 
 
 # Responses
 
 def handle_response(text: str) -> str:
 
-    links_and_quality = list()
-    links_and_season = list()
+    movie = movie_endpoint(text)
+    normalized_data = movie_data_normalizer(movie)
+    movie_name = normalized_data[0].get('name')
+    published_date = normalized_data[0].get('published_at')
 
-    records = read_record(text)
+    lst = []
+    for movie in normalized_data:
+        print(f'movie -> {movie}')
+        lst.append(movie.get('quality_and_codec'))
+        lst.append(movie.get('link'))
 
-    if not records:
-        return 'We Do Not Have That Movie Yet 😔'
+    if published_date:
+        lst.insert(0, f'سال انتشار{published_date}\n\n')
+
+    lst.insert(0, f'🍿{movie_name}\n\n')
+    lst.insert(0, '🎞️ کیفیت های مختلف 🎞️\n\n')
+    lst.insert(0, f'❗️برای دانلود VPN خود را خاموش کنید❗️\n\n')
+
     
-    movie_data = get_links(records)
-
-    
-    if len(movie_data) == 3:
-
-        if movie_data[2][0] in ['480p', '720p', '1080p', '2160p']:
-            links, movie_name, qualities = movie_data
-            data = list(zip(links, qualities))
-            for link, quality in data:
-                links_and_quality.append(quality)
-                links_and_quality.append(link)
-
-            links_and_quality.insert(0, f'🍿{movie_name.title()}\n\n')
-            links_and_quality.insert(0, '🎞️ Differenet Qualites 🎞️\n\n')
-            download_links = f'\n----------------------------------\n'.join(links_and_quality)
-
-            return download_links
-        
-        else:
-            links, movie_name, seasons = movie_data
-            data = list(zip(links, seasons))
-            for link, season in data:
-                links_and_season.append(season)
-                links_and_season.append(link)
-
-            links_and_season.insert(0, f'🍿{movie_name.title()}\n\n')
-            links_and_season.insert(0, '🎞️ Differenet Qualites 🎞️\n\n')
-            download_links = f'\n----------------------------------\n'.join(links_and_season)
-
-            return download_links
-        
-    else:
-        links, movie_name, qualities, links_page, seasons = movie_data
-
-        links_and_season_info = list(zip(links_page, seasons))
-
-        for link, season in links_and_season_info:
-            links_and_season.append(season)
-            links_and_season.append(link)
-
-        links_and_season.insert(0, f'🍿{movie_name.title()}\n\n')
-        links_and_season.insert(0, '🎞️ Differenet Qualites 🎞️\n\n')
-        download_links = f'\n----------------------------------\n'.join(links_and_season)
-
-        return download_links
+    return f'\n----------------------------------\n'.join(lst)
 
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
