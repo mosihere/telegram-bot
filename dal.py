@@ -192,7 +192,9 @@ def movie_endpoint(name: str):
 
 
 
-movies = get_movies()
-for movie in movies:
-    links = get_movie_data(movie)
-    print(links)
+
+if __name__ == '__main__':
+    movies = get_movies()
+    for movie in movies:
+        links = get_movie_data(movie)
+        print(links)
