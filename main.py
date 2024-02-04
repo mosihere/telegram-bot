@@ -61,6 +61,8 @@ def handle_response(text: str) -> str:
 
     if published_date:
         lst.insert(0, f'🍿{movie_name}\n\n📆 {published_date}\n\n')
+        lst.insert(0, '🎞️ کیفیت های مختلف 🎞️\n\n')
+        lst.insert(0, f'❗️برای دانلود VPN خود را خاموش کنید❗️\n\n')
 
     else:
         lst.insert(0, f'🍿{movie_name}\n\n')
