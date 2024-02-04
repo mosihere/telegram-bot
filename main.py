@@ -48,6 +48,8 @@ def handle_response(text: str) -> str:
 
     movie = movie_endpoint(text)
     normalized_data = movie_data_normalizer(movie)
+    if not normalized_data:
+        return 'هنوز این فیلم رو نداریم :('
     movie_name = normalized_data[0].get('name')
     published_date = normalized_data[0].get('published_at')
 
