@@ -55,8 +55,7 @@ def handle_response(text: str) -> str:
 
     lst = []
     for movie in normalized_data:
-        print(f'movie -> {movie}')
-        lst.append(movie.get('quality_and_codec'))
+        lst.append('✔️' + movie.get('quality_and_codec'))
         lst.append(movie.get('link'))
 
     if published_date:
