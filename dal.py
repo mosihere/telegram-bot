@@ -71,7 +71,7 @@ def create_record_for_movies(val: list, has_published_date = False):
     else:
         try:
             sql_command = """
-            INSERT INTO movies (
+            INSERT INTO movies_movie (
                 url, name
             )
             VALUES (%s, %s) """
