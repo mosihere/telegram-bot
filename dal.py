@@ -130,7 +130,6 @@ def read_record_from_movies(movie_name: str) -> None:
 
 def get_movie_data(record: tuple):
     id = record[0]
-    name = record[1]
     url = record[2]
     print(url)
     response = requests.get(url)
@@ -138,7 +137,7 @@ def get_movie_data(record: tuple):
     # links_page = re.findall(r'https://.*kingupload.*[0-9]/', response.text)
 
     for link in links:
-        quality = re.findall(r'[0-9]{3,4}[p]', link)
+        quality = find_movie_quality(link)
         if not quality:
             continue
         quality = quality[0]
@@ -162,16 +161,16 @@ def movie_data_normalizer(movies: List[Dict]) -> list:
     return data
 
 
-def find_movie_quality(links: list) -> None:
+def find_movie_quality(link: list) -> list:
 
-    quality = re.findall(r'[0-9]{3,4}[p]', ' '.join(links))
+    quality = re.findall(r'[0-9]{3,4}[p]',link)
 
     return quality
 
 
-def find_series_season(links: list):
+def find_series_season(link: list):
    
-   season = re.findall(r'S\d{2}', ' '.join(links))
+   season = re.findall(r'S\d{2}', ' '.join(link))
 
    return season
 
