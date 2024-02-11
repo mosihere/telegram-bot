@@ -111,16 +111,18 @@ def get_movie_data(record: tuple):
     print(url)
     response = requests.get(url)
     links = re.findall(r'https://.*kingupload.*mkv', response.text)
-
-    for link in links:
-        quality = find_movie_quality(link)
-        if not quality:
-            continue
-        quality = quality[0]
-        codec = 'x265' if 'x265' in link else 'x264'
-        data = (link, quality, id, codec)
-        create_record_for_movie_links(data)
-        time.sleep(2)
+    if links:
+        for link in links:
+            quality = find_movie_quality(link)
+            if not quality:
+                continue
+            quality = quality[0]
+            codec = 'x265' if 'x265' in link else 'x264'
+            data = (link, quality, id, codec)
+            create_record_for_movie_links(data)
+            time.sleep(2)
+    else:
+        return
 
 
 def get_series_data(record: tuple):
@@ -129,15 +131,18 @@ def get_series_data(record: tuple):
     print(url)
     response = requests.get(url)
     links_page = re.findall(r'https://.*kingupload.*/Serial/.*[0-9]/', response.text)
-    for link in links_page:
-        season = find_series_season(link)
-        if not season:
-            continue
-        season = season[0]
-        codec = 'x265' if 'x265' in link else 'x264'
-        data = (link, season, id, codec)
-        create_record_for_movie_links(data)
-        time.sleep(2)
+    if links_page:
+        for link in links_page:
+            season = find_series_season(link)
+            if not season:
+                continue
+            season = season[0]
+            codec = 'x265' if 'x265' in link else 'x264'
+            data = (link, season, id, codec)
+            create_record_for_movie_links(data)
+            time.sleep(2)
+    else:
+        return
 
 
 def movie_data_normalizer(movies: List[Dict]) -> list:
