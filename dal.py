@@ -105,37 +105,13 @@ def create_record_for_movie_links(val: tuple) -> int | str:
         return f'We faced an error: {err}'
 
 
-def read_record_from_movies(movie_name: str) -> None:
-   
-    sql_command = """SELECT * from movies_movie WHERE name LIKE %s """
-
-    in_between_param = ("%" + movie_name + "%")
-    start_with_param = (movie_name + "%")
-    cnx = connect_to_database()
-    cursor = cnx.cursor()
-
-    cursor.execute(sql_command, (start_with_param, ))
-    movies = cursor.fetchone()
-
-    if movies:
-        cnx.close()
-        return movies
-    
-    else:
-        cursor.execute(sql_command, (in_between_param, ))
-        movies = cursor.fetchone()
-        cnx.close()
-        return movies
-
-
 def get_movie_data(record: tuple):
     id = record[0]
     url = record[2]
     print(url)
     response = requests.get(url)
     links = re.findall(r'https://.*kingupload.*mkv', response.text)
-    # links_page = re.findall(r'https://.*kingupload.*[0-9]/', response.text)
-
+    
     for link in links:
         quality = find_movie_quality(link)
         if not quality:
@@ -145,17 +121,34 @@ def get_movie_data(record: tuple):
         data = (link, quality, id, codec)
         create_record_for_movie_links(data)
         time.sleep(2)
-    
+
+
+def get_serries_data(record: tuple):
+    id = record[0]
+    url = record[2]
+    print(url)
+    response = requests.get(url)
+    links_page = re.findall(r'https://.*kingupload.*/Serial/.*[0-9]/', response.text)
+    for link in links_page:
+        season = find_series_season(link)
+        if not season:
+            continue
+        season = season[0]
+        codec = 'x265' if 'x265' in link else 'x264'
+        data = (link, season, id, codec)
+        create_record_for_movie_links(data)
+        time.sleep(2)
+
 
 def movie_data_normalizer(movies: List[Dict]) -> list:
     data = list()
     for movie in movies:
         movie_info = {
-        'link': f'{movie.get("link")}\n',
-        'quality_and_codec': f'{movie.get("quality")} - {movie.get("codec")}',
-        'name': movie.get('movie').get('name'),
-        'published_at': movie.get('movie').get('published_at'),
-        }
+            'link': f'{movie.get("link")}\n',
+            'quality_and_codec': f'{movie.get("quality")} - {movie.get("codec")}',
+            'name': movie.get('movie').get('name'),
+            'published_at': movie.get('movie').get('published_at'),
+            }
         data.append(movie_info)
 
     return data
@@ -170,12 +163,12 @@ def find_movie_quality(link: list) -> list:
 
 def find_series_season(link: list):
    
-   season = re.findall(r'S\d{2}', ' '.join(link))
+   season = re.findall(r'S\d{2}', link)
 
    return season
 
 
-def get_movies():
+def get_movies_from_db():
     sql_command = """ SELECT * FROM movies_movie WHERE id > 460"""
     conx = connect_to_database()
     cursor = conx.cursor()
@@ -193,7 +186,7 @@ def movie_endpoint(name: str):
 
 
 if __name__ == '__main__':
-    movies = get_movies()
+    movies = get_movies_from_db()
     for movie in movies:
         links = get_movie_data(movie)
         print(links)
