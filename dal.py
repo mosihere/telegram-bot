@@ -111,7 +111,7 @@ def get_movie_data(record: tuple):
     print(url)
     response = requests.get(url)
     links = re.findall(r'https://.*kingupload.*mkv', response.text)
-    
+
     for link in links:
         quality = find_movie_quality(link)
         if not quality:
@@ -123,7 +123,7 @@ def get_movie_data(record: tuple):
         time.sleep(2)
 
 
-def get_serries_data(record: tuple):
+def get_series_data(record: tuple):
     id = record[0]
     url = record[2]
     print(url)
