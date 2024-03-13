@@ -13,6 +13,18 @@ BASE_URL = "https://www.f2m45.fun"
 
 
 def movie_crawler(start_page: int, end_page: int) -> list:
+    """
+    Get two args as start_page and end_page, send a get request to the base url
+    then with regex find all movie_links
+    
+    Args:
+        start_page: int
+        end_page: int
+
+    Returns:
+        list(str)
+    """
+
     data = list()
 
     for page in range(start_page, end_page + 1):
@@ -28,6 +40,18 @@ def movie_crawler(start_page: int, end_page: int) -> list:
 
 
 def series_crawler(start_page: int, end_page: int) -> list:
+    """
+    Get two args as start_page and end_page, send a get request to the base url
+    then with regex find all series_link
+    
+    Args:
+        start_page: int
+        end_page: int
+
+    Returns:
+        list(str)
+    """
+
     data = list()
 
     for page in range(start_page, end_page + 1):
@@ -44,6 +68,16 @@ def series_crawler(start_page: int, end_page: int) -> list:
 
 
 def remove_duplicate(movie_list: list) -> list:
+    """
+    Get a single arg as movie_list, iterate on each movie and append them to new list
+    finally we create a list of set to remove duplicate movies-series.    
+    Args:
+        movie_list: list
+
+    Returns:
+        list(str)
+    """
+    
     new_list = list()
 
     for part in movie_list:
@@ -55,7 +89,21 @@ def remove_duplicate(movie_list: list) -> list:
     return normalized_data
 
 
-def ready_for_insert(movies: list) -> None:
+def ready_for_insert(movies: list) -> tuple:
+    """
+    Get a single arg as movies(url of movies), iterate on them
+    get_data from urls --> movie_name, published_date ...
+    call is_duplicate function for each movie to check is that exists in db or not!
+    then check if there is a date in url or not, and finally call create_record_for_movies() function
+    return duplicate_movies count and new_movies crawled.
+    
+    Args:
+        movies: list
+
+    Returns:
+        tuple(duplicate_counter: int, crawled_data: int)
+    """
+
     duplicate_counter = 0
     movies_data = list()
     movies_with_published_date = list()
