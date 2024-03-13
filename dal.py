@@ -10,6 +10,15 @@ from mysql.connector import errorcode
 
 
 def connect_to_database():
+    """
+    Connecting to Database
+    
+    Args:
+        None
+
+    Returns:
+        MySQL-connection
+    """
 
     try:
         db = mysql.connector.connect(
@@ -31,7 +40,20 @@ def connect_to_database():
             return err
 
 
-def is_duplicate(movie_name):
+def is_duplicate(movie_name: str) -> bool | str:
+    """
+    Get a single arg as movie_name, query the name that movie
+    if exists and return a id:
+        return True
+    else:
+        return False
+    
+    Args:
+        movie_name: str
+
+    Returns:
+        bool | str(Error)
+    """
     
     sql = """ SELECT id FROM movies_movie WHERE name=%s """
 
@@ -47,10 +69,24 @@ def is_duplicate(movie_name):
         return False
     
     except mysql.connector.Error as err:
-        return 'SomeThing failed.'
+        return f'SomeThing failed: {err}'
 
 
-def create_record_for_movies(val: list, has_published_date = False):
+def create_record_for_movies(val: list, has_published_date: bool = False) -> None | str:
+    """
+    Get two args as val and has_published_date
+    if has_published_date:
+        create record in db with populating published_at field
+    else:
+        create record without populating published_at field
+    
+    Args:
+        val: list
+        has_published_at: bool -> (default=False)
+
+    Returns:
+        None | str(Error)
+    """
 
     if has_published_date:
        try:
@@ -87,6 +123,18 @@ def create_record_for_movies(val: list, has_published_date = False):
 
 
 def create_record_for_movie_links(val: tuple) -> int | str:
+    """
+    Get a single arg as val
+    try to insert a value to database with specified query and return lastrowid
+    in case of exception returns error message as string.
+
+    Args:
+        val: tuple
+
+    Returns:
+        int | str(Error)
+    """
+
     try:
         print(val)
         sql_command = """
@@ -105,7 +153,20 @@ def create_record_for_movie_links(val: tuple) -> int | str:
         return f'We faced an error: {err}'
 
 
-def get_movie_data(record: tuple):
+def get_movie_data(record: tuple) -> None:
+    """
+    Get a single arg as record
+    request the given url, seprate mkv file extensions with regex
+    iterate on finded direct mkv links to find quality of them
+    and then creating a movie_record.
+    
+    Args:
+        record: tuple
+
+    Returns:
+        None
+    """
+
     id = record[0]
     url = record[2]
     print(url)
@@ -126,6 +187,19 @@ def get_movie_data(record: tuple):
 
 
 def get_series_data(record: tuple):
+    """
+    Get a single arg as record
+    request the given url, seprate season url with regex
+    iterate on finded direct seasons links to find season number
+    and then creating a movie_record.
+    
+    Args:
+        record: tuple
+
+    Returns:
+        None
+    """
+
     id = record[0]
     url = record[2]
     print(url)
@@ -145,7 +219,21 @@ def get_series_data(record: tuple):
         return
 
 
-def movie_data_normalizer(movies: List[Dict]) -> list:
+def movie_data_normalizer(movies: List[Dict]) -> List[Dict]:
+    """
+    Get a single arg as movies
+    iterate on the given list
+    create a dictionary for each object
+    get neccessary data and append them to a new list
+    finally returns a list of dict.
+    
+    Args:
+        movies: list(dict)
+
+    Returns:
+        list(dict)
+    """
+
     data = list()
     for movie in movies:
         movie_info = {
@@ -160,20 +248,44 @@ def movie_data_normalizer(movies: List[Dict]) -> list:
 
 
 def find_movie_quality(link: list) -> list:
+    """
+    Get a single arg as link
+    find and return list of quality .
+
+    Args:
+        link: list
+
+    Returns:
+        list
+    """
 
     quality = re.findall(r'[0-9]{3,4}[p]',link)
-
     return quality
 
 
 def find_series_season(link: list):
-   
-   season = re.findall(r'S\d{2}', link)
+    """
+    Get a single arg as link
+    find and return list of season numbers.
 
-   return season
+    Args:
+        link: list
+
+    Returns:
+        list
+    """
+    season = re.findall(r'S\d{2}', link)
+    return season
 
 
-def get_movies_from_db():
+def get_movies_from_db() -> List[tuple]:
+    """
+    Read records from Database 
+
+    Returns:
+        list(tuple)
+    """
+
     sql_command = """ SELECT * FROM movies_movie WHERE id > 460"""
     conx = connect_to_database()
     cursor = conx.cursor()
@@ -182,7 +294,18 @@ def get_movies_from_db():
     return movies
 
 
-def movie_endpoint(name: str):
+def movie_endpoint(name: str) -> dict:
+    """
+    Get a single arg as name
+    send a request to specified endpoint and set name parameter as query_string
+    
+    Args:
+        name: str
+
+    Returns:
+        Dict
+    """
+
     response = requests.get(f'http://127.0.0.1:8000/movies/links/?movie_name={name}')
     return response.json()
 
