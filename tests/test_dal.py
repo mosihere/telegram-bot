@@ -96,6 +96,12 @@ def sample_founded_series_season():
     return data
 
 
+@pytest.fixture
+def sample_inserted_record():
+    data = [(4838, 'the-zone-of-interest-2023', 'https://www.f2m90.fun/15726/the-zone-of-interest-2023', None)]
+    return data
+
+
 def test_is_duplicate():
     """
     Test if is_duplicate function works properly.
@@ -139,9 +145,9 @@ def test_find_series_season(sample_links, sample_founded_series_season):
     assert find_series_season(sample_links[6]) == [sample_founded_series_season[1]]
 
 
-def test_get_movies_from_db():
+def test_get_movies_from_db(sample_inserted_record):
     """
     Test if get_movies_from_db function works properly.
     """
-    
-    assert get_movies_from_db() == [(4838, 'the-zone-of-interest-2023', 'https://www.f2m90.fun/15726/the-zone-of-interest-2023', None)]
+
+    assert get_movies_from_db() == sample_inserted_record
