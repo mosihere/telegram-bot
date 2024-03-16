@@ -1,8 +1,5 @@
-import os
 import pytest
-import mysql.connector
 from dal import is_duplicate, create_record_for_movies, movie_data_normalizer, find_movie_quality, find_series_season, get_movies_from_db
-from mysql.connector import errorcode
 
 
 
