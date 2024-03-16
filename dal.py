@@ -72,7 +72,7 @@ def is_duplicate(movie_name: str) -> bool | str:
         return f'SomeThing failed: {err}'
 
 
-def create_record_for_movies(val: list, has_published_date: bool = False) -> None | str:
+def create_record_for_movies(val: list[tuple], has_published_date: bool = False) -> None | str:
     """
     Get two args as val and has_published_date
     if has_published_date:
@@ -182,8 +182,10 @@ def get_movie_data(record: tuple) -> None:
             data = (link, quality, id, codec)
             create_record_for_movie_links(data)
             time.sleep(2)
+        else:
+            return True
     else:
-        return
+        return False
 
 
 def get_series_data(record: tuple):
@@ -286,7 +288,7 @@ def get_movies_from_db() -> List[tuple]:
         list(tuple)
     """
 
-    sql_command = """ SELECT * FROM movies_movie WHERE id > 460"""
+    sql_command = """ SELECT * FROM movies_movie WHERE id > 4836"""
     conx = connect_to_database()
     cursor = conx.cursor()
     cursor.execute(sql_command)
