@@ -213,24 +213,28 @@ def get_series_data(record: tuple):
     if links_page:
         links_page = list(set(links_page))
         for link in links_page:
-            season = find_series_season(link)
+            serial_link = re.search(r'https://.*kingupload.*/Serial/.*/S[0-9]{2}/', link)
+            serial_link = serial_link.group(0)
+            season = find_series_season(serial_link)
             if not season:
                 continue
             season = season[0]
-            codec = 'x265' if 'x265' in link else 'x264'
-            data = (link, season, id, codec)
+            codec = 'x265' if 'x265' in serial_link else 'x264'
+            data = (serial_link, season, id, codec)
             create_record_for_movie_links(data)
             time.sleep(2)
             
     elif new_links_page:
         new_links_page = list(set(new_links_page))
         for link in new_links_page:
-            season = find_series_season(link)
+            series_link = re.search(r'https://.*kingupload.*/Series/.*/S[0-9]{2}/', link)
+            series_link = series_link.group(0)
+            season = find_series_season(series_link)
             if not season:
                 continue
             season = season[0]
-            codec = 'x265' if 'x265' in link else 'x264'
-            data = (link, season, id, codec)
+            codec = 'x265' if 'x265' in series_link else 'x264'
+            data = (series_link, season, id, codec)
             create_record_for_movie_links(data)
             time.sleep(2)
     else:
@@ -304,7 +308,7 @@ def get_movies_from_db() -> List[tuple]:
         list(tuple)
     """
 
-    sql_command = """ SELECT * FROM movies_movie WHERE id > 4836"""
+    sql_command = """ SELECT * FROM movies_movie WHERE id = 3975"""
     conx = connect_to_database()
     cursor = conx.cursor()
     cursor.execute(sql_command)
@@ -334,5 +338,5 @@ def movie_endpoint(name: str) -> dict:
 if __name__ == '__main__':
     movies = get_movies_from_db()
     for movie in movies:
-        links = get_movie_data(movie)
-        print(links)
+        series_links = get_series_data(movie)
+        movie_links = get_movie_data(movie)
