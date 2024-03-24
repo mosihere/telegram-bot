@@ -169,10 +169,11 @@ def get_movie_data(record: tuple) -> None:
 
     id = record[0]
     url = record[2]
-    print(url)
+    print('Movie URLs\n')
     response = requests.get(url)
     links = re.findall(r'https://.*kingupload.*mkv', response.text)
     if links:
+        links = list(set(links))
         for link in links:
             quality = find_movie_quality(link)
             if not quality:
@@ -204,10 +205,11 @@ def get_series_data(record: tuple):
 
     id = record[0]
     url = record[2]
-    print(url)
+    print('Series URLs\n')
     response = requests.get(url)
     links_page = re.findall(r'https://.*kingupload.*/Serial/.*[0-9]/', response.text)
     if links_page:
+        links_page = list(set(links_page))
         for link in links_page:
             season = find_series_season(link)
             if not season:
