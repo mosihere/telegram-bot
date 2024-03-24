@@ -209,9 +209,22 @@ def get_series_data(record: tuple):
     response = requests.get(url)
     links_page = re.findall(r'https://.*kingupload.*/Serial/.*[0-9]/', response.text)
     new_links_page = re.findall(r'https://.*kingupload.*/Series/.*[0-9]/', response.text)
-    if links_page or new_links_page:
+
+    if links_page:
         links_page = list(set(links_page))
         for link in links_page:
+            season = find_series_season(link)
+            if not season:
+                continue
+            season = season[0]
+            codec = 'x265' if 'x265' in link else 'x264'
+            data = (link, season, id, codec)
+            create_record_for_movie_links(data)
+            time.sleep(2)
+            
+    elif new_links_page:
+        new_links_page = list(set(new_links_page))
+        for link in new_links_page:
             season = find_series_season(link)
             if not season:
                 continue
