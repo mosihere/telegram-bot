@@ -208,7 +208,8 @@ def get_series_data(record: tuple):
     print('Series URLs\n')
     response = requests.get(url)
     links_page = re.findall(r'https://.*kingupload.*/Serial/.*[0-9]/', response.text)
-    if links_page:
+    new_links_page = re.findall(r'https://.*kingupload.*/Series/.*[0-9]/', response.text)
+    if links_page or new_links_page:
         links_page = list(set(links_page))
         for link in links_page:
             season = find_series_season(link)
