@@ -3,9 +3,9 @@ import re
 import time
 import requests
 import mysql.connector
+from tabulate import tabulate
 from typing import List, Dict
 from mysql.connector import errorcode
-
 
 
 
@@ -135,8 +135,11 @@ def create_record_for_movie_links(val: tuple) -> int | str:
         int | str(Error)
     """
 
+    tabular_titles = ['Link', 'Quality / Season', 'ID', 'Codec']
+
     try:
-        print(val)
+        print(tabulate(tabular_data=[tabular_titles, val]))
+        print()
         sql_command = """
             INSERT INTO movies_link (
                 link, quality, movie_id, codec
@@ -169,7 +172,7 @@ def get_movie_data(record: tuple) -> None:
 
     id = record[0]
     url = record[2]
-    print('Movie URLs\n')
+    print('\n++ Extracted Movie URLs ++\n')
     response = requests.get(url)
     links = re.findall(r'https://.*kingupload.*mkv', response.text)
     if links:
@@ -205,7 +208,7 @@ def get_series_data(record: tuple):
 
     id = record[0]
     url = record[2]
-    print('Series URLs\n')
+    print('\n++ Extracted Series URLs ++\n')
     response = requests.get(url)
     links_page = re.findall(r'https://.*kingupload.*/Serial/.*[0-9]/', response.text)
     new_links_page = re.findall(r'https://.*kingupload.*/Series/.*[0-9]/', response.text)
