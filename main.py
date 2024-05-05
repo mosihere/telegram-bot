@@ -124,7 +124,7 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler('start', start))
 
     # Messages
-    app.add_handler(MessageHandler(filters.TEXT, handle_message))
+    # app.add_handler(MessageHandler(filters.TEXT, handle_message))
 
     # on inline queries - show corresponding inline results
     app.add_handler(InlineQueryHandler(inline_query))
