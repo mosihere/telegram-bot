@@ -82,7 +82,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     message_type = update.message.chat.type
     text = update.message.text.replace(' ', '-')
 
-    with open('users_log.txt', 'a') as f:
+    with open('users.log', 'a') as f:
         f.write(f'User {update.message.chat.id} in {message_type}: "{text}"\n')
 
 
