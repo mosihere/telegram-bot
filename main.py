@@ -1,52 +1,57 @@
 import os
-from dal import movie_endpoint, movie_data_normalizer
-from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
-from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters, InlineQueryHandler, CallbackQueryHandler
+import logging
+from uuid import uuid4
+from dal import movie_data_normalizer, movie_links_endpoint, movie_endpoint
+from telegram import Update, InlineQueryResultArticle, InputTextMessageContent
+from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters, InlineQueryHandler, ChosenInlineResultHandler
 
 TOKEN = os.environ['BOT_TOKEN']
 BOT_USERNAME = '@shodambot'
 
 
+# Enable logging
+logging.basicConfig(
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+)
+# set higher logging level for httpx to avoid all GET and POST requests being logged
+logging.getLogger("httpx").setLevel(logging.WARNING)
+
+logger = logging.getLogger(__name__)
+
 
 # Commands
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Sends a message with three inline buttons attached."""
-    # keyboard = [
-    #     [
-    #         InlineKeyboardButton("film", callback_data="1"),
-    #         InlineKeyboardButton("idk", callback_data="2"),
-    #     ],
-    #     [InlineKeyboardButton("idk", callback_data="3")],
-    # ]
-
-    # reply_markup = InlineKeyboardMarkup(keyboard)
-
-    await update.message.reply_text('🎥 چه فیلمی میخوای\n\n✅john wick\n\n🔍سرچش کن: ')
+    await update.message.reply_text('🎥 چه فیلمی میخوای\n\n🔍آیدی بات رو منشن کن و جلوش سرچ کن تا نتایج جست و جو رو ببینی\n\n💪حتی تو گروه و پی وی دیگران هم میتونی اینکار رو انجام بدی :)\n\nاینشکلی:\n\n@shodambot friends✅')
 
 
+async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Handle the inline query. This is run when you type: @botusername <query>"""
+    query = update.inline_query.query
+    if not query:
+        return
+    inline_options = []
+    for movie in search_movie(update.inline_query.query.replace(' ', '-')):
+        movie_id = movie.get('id')
+        inline_options.append(
+        InlineQueryResultArticle(
+                id=movie_id,
+                title=movie.get('name'),
+                input_message_content=InputTextMessageContent(handle_response(movie_id))
+        )
+        )
+    await context.bot.answer_inline_query(update.inline_query.id, inline_options)
 
 
-# async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-#     """Parses the CallbackQuery and updates the message text."""
-#     query = update.callback_query
-
-#     # CallbackQueries need to be answered, even if no notification to the user is needed
-#     # Some clients may have trouble otherwise. See https://core.telegram.org/bots/api#callbackquery
-#     await query.answer()
-#     print(query.data)
-#     await query.edit_message_text(text='Enter Movie/Series Name: ')
-
-
-async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    await update.message.reply_text('من میتونم لینک دانلود مستقیم فیلم بهت بدم بدون سانسور :)\n\n✅ -> evil dead')
-
+def search_movie(title: str):
+    movie = movie_endpoint(title)
+    return movie
 
 # Responses
 
-def handle_response(text: str) -> str:
+def handle_response(movie_id: str) -> str:
 
-    movie = movie_endpoint(text)
+    movie = movie_links_endpoint(movie_id)
     normalized_data = movie_data_normalizer(movie)
     if not normalized_data:
         return 'هنوز این فیلم رو نداریم :('
@@ -76,9 +81,9 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
     message_type = update.message.chat.type
     text = update.message.text.replace(' ', '-')
-    print(text)
 
-    print(f'User {update.message.chat.id} in {message_type}: "{text}"')
+    with open('users_log.txt', 'a') as f:
+        f.write(f'User {update.message.chat.id} in {message_type}: "{text}"\n')
 
 
     if message_type == 'group':
@@ -111,20 +116,18 @@ async def error(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 
 
-
-
 if __name__ == '__main__':
 
     app = Application.builder().token(TOKEN).build()
 
     # Commands
     app.add_handler(CommandHandler('start', start))
-    # app.add_handler(CallbackQueryHandler(button))
-    app.add_handler(CommandHandler('help', help_command))
-
 
     # Messages
-    app.add_handler(MessageHandler(filters.TEXT, handle_message))
+    # app.add_handler(MessageHandler(filters.TEXT, handle_message))
+
+    # on inline queries - show corresponding inline results
+    app.add_handler(InlineQueryHandler(inline_query))
 
     # Errors
     app.add_error_handler(error)
