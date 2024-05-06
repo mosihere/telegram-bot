@@ -33,11 +33,12 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     inline_options = []
     for movie in search_movie(update.inline_query.query.replace(' ', '-')):
         movie_id = movie.get('id')
+        response = handle_response(movie_id)
         inline_options.append(
         InlineQueryResultArticle(
                 id=movie_id,
                 title=movie.get('name'),
-                input_message_content=InputTextMessageContent(handle_response(movie_id))
+                input_message_content=InputTextMessageContent(response[:4096])
         )
         )
     await context.bot.answer_inline_query(update.inline_query.id, inline_options)
