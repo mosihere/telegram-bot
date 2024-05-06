@@ -36,7 +36,7 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         response = handle_response(movie_id)
         inline_options.append(
         InlineQueryResultArticle(
-                id=movie_id,
+                id=movie.get('id'),
                 title=movie.get('name'),
                 input_message_content=InputTextMessageContent(response[:4096])
         )
