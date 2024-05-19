@@ -8,6 +8,8 @@ from typing import List, Dict
 from mysql.connector import errorcode
 
 
+MOVIE_INFO_URL = 'https://www.omdbapi.com'
+
 
 def connect_to_database():
     """
@@ -24,7 +26,7 @@ def connect_to_database():
         db = mysql.connector.connect(
             host="localhost",
             user="root",
-            password=os.environ['DB_PASS'],
+            password=os.environ.get('DB_PASS'),
             database="movie"
     )
         return db
@@ -38,6 +40,35 @@ def connect_to_database():
 
         else:
             return err
+
+
+def get_movie_imdb_info(movie: str, api_key: str) -> Dict:
+    response = requests.get(f'{MOVIE_INFO_URL}/?t={movie}&apikey={api_key}')
+    return response.json()
+
+
+def normalized_imdb_info(movie_info: dict):
+    result = {
+        '🏷️ Title': movie_info.get('Title'),
+        '🗓️Year': movie_info.get('Year'),
+        '🔗 Type': movie_info.get('Type'),
+        'Ʀ Rated': movie_info.get('Rated'),
+        '📅 Released': movie_info.get('Released'),
+        '🕥 Length': movie_info.get('Runtime'),
+        '📚 Genre': movie_info.get('Genre'),
+        '🎬 Director': movie_info.get('Director'),
+        '✍🏻 Writer': movie_info.get('Writer'),
+        '🎭 Actors': movie_info.get('Actors'),
+        '📖 Plot': movie_info.get('Plot'),
+        '💬 Language': movie_info.get('Language'),
+        '🌎 Country': movie_info.get('Country'),
+        '🏅 Awards': movie_info.get('Awards'),
+        '🌇 Poster': movie_info.get('Poster'),
+        '📊 imdbRating': movie_info.get('imdbRating'),
+        '🗳 imdbVotes': movie_info.get('imdbVotes'),
+        '💰 BoxOffice': movie_info.get('BoxOffice'),
+    }
+    return result
 
 
 def is_duplicate(movie_name: str) -> bool | str:

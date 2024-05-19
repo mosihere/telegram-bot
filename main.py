@@ -1,11 +1,12 @@
 import os
 import logging
 from uuid import uuid4
-from dal import movie_data_normalizer, movie_links_endpoint, movie_endpoint
+from dal import movie_data_normalizer, movie_links_endpoint, movie_endpoint, get_movie_imdb_info, normalized_imdb_info
 from telegram import Update, InlineQueryResultArticle, InputTextMessageContent
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters, InlineQueryHandler, ChosenInlineResultHandler
 
-TOKEN = os.environ['BOT_TOKEN']
+TOKEN = os.environ.get('BOT_TOKEN')
+API_KEY = os.environ.get('API_KEY')
 BOT_USERNAME = '@shodambot'
 
 
@@ -23,6 +24,10 @@ logger = logging.getLogger(__name__)
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text('🎥 چه فیلمی میخوای\n\n🔍آیدی بات رو منشن کن و جلوش سرچ کن تا نتایج جست و جو رو ببینی\n\n💪حتی تو گروه و پی وی دیگران هم میتونی اینکار رو انجام بدی :)\n\nاینشکلی:\n\n@shodambot friends✅')
+
+
+async def movie_info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    await update.message.reply_text('🎥اسم فیلم یا سریال مورد نظرت رو بنویس\nاطالاعاتش رو برات میارم مثل سال ساخت، بازیگراش، کارگردانش، نمرات imdb و ...')
 
 
 async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -80,36 +85,46 @@ def handle_response(movie_id: str) -> str:
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
-    message_type = update.message.chat.type
-    text = update.message.text.replace(' ', '-')
-
-    with open('users.log', 'a') as f:
-        f.write(f'User {update.message.chat.id} in {message_type}: "{text}"\n')
-
-
-    if message_type == 'group':
-
-        if BOT_USERNAME in text:
-            print(text)
-            new_text = text.replace(BOT_USERNAME, '').strip().lstrip('-')
-            print(new_text)
-            response = handle_response(new_text)
-
-        else:
-            return
+    final_result = list()
+    text = update.message.text
+    movie_info = get_movie_imdb_info(text, API_KEY)
+    result = normalized_imdb_info(movie_info)
+    
+    for key, value in result.items():
+        final_result.append(f'{key}: {value}')
+    
+    await update.message.reply_text('\n\n'.join(final_result))
         
-    else:
-        response = handle_response(text)
+    # message_type = update.message.chat.type
+    # text = update.message.text.replace(' ', '-')
+
+    # with open('users.log', 'a') as f:
+    #     f.write(f'User {update.message.chat.id} in {message_type}: "{text}"\n')
 
 
-    print(f'Bot: {response}')
+    # if message_type == 'group':
 
-    if len(response) > 4096:
-        for x in range(0, len(response), 4096):
-            await update.message.reply_text(response[x: x+4096])
+    #     if BOT_USERNAME in text:
+    #         print(text)
+    #         new_text = text.replace(BOT_USERNAME, '').strip().lstrip('-')
+    #         print(new_text)
+    #         response = handle_response(new_text)
 
-    else:
-        await update.message.reply_text(response)
+    #     else:
+    #         return
+        
+    # else:
+    #     response = handle_response(text)
+
+
+    # print(f'Bot: {response}')
+
+    # if len(response) > 4096:
+    #     for x in range(0, len(response), 4096):
+    #         await update.message.reply_text(response[x: x+4096])
+
+    # else:
+    #     await update.message.reply_text(response)
 
 
 async def error(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -123,9 +138,11 @@ if __name__ == '__main__':
 
     # Commands
     app.add_handler(CommandHandler('start', start))
+    app.add_handler(CommandHandler('getinfo', movie_info))
+
 
     # Messages
-    # app.add_handler(MessageHandler(filters.TEXT, handle_message))
+    app.add_handler(MessageHandler(filters.TEXT, handle_message))
 
     # on inline queries - show corresponding inline results
     app.add_handler(InlineQueryHandler(inline_query))
