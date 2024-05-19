@@ -217,6 +217,8 @@ def get_series_data(record: tuple):
         links_page = list(set(links_page))
         for link in links_page:
             serial_link = re.search(r'https://.*kingupload.*/Serial/.*/S[0-9]{2}/', link)
+            if not serial_link:
+                continue
             serial_link = serial_link.group(0)
             season = find_series_season(serial_link)
             if not season:
@@ -231,6 +233,8 @@ def get_series_data(record: tuple):
         new_links_page = list(set(new_links_page))
         for link in new_links_page:
             series_link = re.search(r'https://.*kingupload.*/Series/.*/S[0-9]{2}/', link)
+            if not series_link:
+                continue
             series_link = series_link.group(0)
             season = find_series_season(series_link)
             if not season:
@@ -311,7 +315,7 @@ def get_movies_from_db() -> List[tuple]:
         list(tuple)
     """
 
-    sql_command = """ SELECT * FROM movies_movie WHERE id = 3975"""
+    sql_command = """ SELECT * FROM movies_movie WHERE id = 3857"""
     conx = connect_to_database()
     cursor = conx.cursor()
     cursor.execute(sql_command)
