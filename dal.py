@@ -64,6 +64,7 @@ def normalized_imdb_info(movie_info: dict):
         '🌎 Country': movie_info.get('Country'),
         '🏅 Awards': movie_info.get('Awards'),
         '🌇 Poster': movie_info.get('Poster'),
+        '📊 Metacritic': movie_info.get('Metacritic'),
         '📊 imdbRating': movie_info.get('imdbRating'),
         '🗳 imdbVotes': movie_info.get('imdbVotes'),
         '💰 BoxOffice': movie_info.get('BoxOffice'),
