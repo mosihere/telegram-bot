@@ -8,7 +8,7 @@ from dal import is_duplicate, create_record_for_movies
 # Careful! Just run this module when you want crawl movies.
 
 
-BASE_URL = "https://www.f2m45.fun"
+BASE_URL = "https://www.myf2m.ru.com"
 
 
 
