@@ -1,18 +1,23 @@
 import re
 import time
+import asyncio
+import aiohttp
 import datetime
-import requests
+from typing import List
 from dal import is_duplicate, create_record_for_movies
-
 
 # Careful! Just run this module when you want crawl movies.
 
 
-BASE_URL = "https://www.myf2m.ru.com"
+BASE_URL = "https://www.myf2mx.ir"
 
 
+async def fetch(session: aiohttp.ClientSession, url: str):
+    async with session.get(url) as response:
+        return await response.text()
 
-def movie_crawler(start_page: int, end_page: int) -> list:
+
+async def movie_crawler(session: aiohttp.ClientSession, start_page: int, end_page: int) -> list:
     """
     Get two args as start_page and end_page, send a get request to the base url
     then with regex find all movie_links
@@ -25,21 +30,24 @@ def movie_crawler(start_page: int, end_page: int) -> list:
         list(str)
     """
 
-    data = list()
+    tasks = []
 
     for page in range(start_page, end_page + 1):
 
-        response = requests.get(f'{BASE_URL}/page/{page}')
+        task = asyncio.create_task(fetch(session, f'{BASE_URL}/page/{page}'))
+        tasks.append(task)
+        await asyncio.sleep(2)
 
-        time.sleep(2)
-
-        links = re.findall(f'{BASE_URL}/\d*/\w*[-]*\d*\w*[-]*\d*\w*[-]*\d*\w*[-]*\d*\w*[-]*\d*\w*[-]*\d*\w*[-]*\d*\w*[-]*\d*\w*[-]*\d*', response.text)
-        data.append(list(set(links)))
+    pages_content = await asyncio.gather(*tasks)
+    all_links = []
+    for content in pages_content:
+        links = re.findall(f'{BASE_URL}/\d*/\w*[-]*\d*\w*[-]*\d*\w*[-]*\d*\w*[-]*\d*\w*[-]*\d*\w*[-]*\d*\w*[-]*\d*\w*[-]*\d*', content)
+        all_links.extend(list(set(links)))
         
-    return data
+    return all_links
 
 
-def series_crawler(start_page: int, end_page: int) -> list:
+async def series_crawler(session: aiohttp.ClientSession, start_page: int, end_page: int) -> list:
     """
     Get two args as start_page and end_page, send a get request to the base url
     then with regex find all series_link
@@ -52,22 +60,24 @@ def series_crawler(start_page: int, end_page: int) -> list:
         list(str)
     """
 
-    data = list()
+    tasks = []
 
     for page in range(start_page, end_page + 1):
 
-        response = requests.get(f'{BASE_URL}/category/دانلود-سریال/page/{page}')
+        task = asyncio.create_task(fetch(session, f'{BASE_URL}/category/دانلود-سریال/page/{page}'))
+        tasks.append(task)
+        await asyncio.sleep(2)
 
-        time.sleep(2)
+    pages_content = await asyncio.gather(*tasks)
+    all_links = []
+    for content in pages_content:
+        links = re.findall(f'{BASE_URL}/\d*/\w*[-]*\d*\w*[-]*\d*\w*[-]*\d*\w*[-]*\d*\w*[-]*\d*\w*[-]*\d*\w*[-]*\d*\w*[-]*\d*\w*[-]*\d*', content)
+        all_links.extend(list(set(links)))
 
-        links = re.findall(f'{BASE_URL}/\d*/\w*[-]*\d*\w*[-]*\d*\w*[-]*\d*\w*[-]*\d*\w*[-]*\d*\w*[-]*\d*\w*[-]*\d*\w*[-]*\d*\w*[-]*\d*', response.text)
-        data.append(list(set(links)))
-        
-    return data
+    return all_links
 
 
-
-def remove_duplicate(movie_list: list) -> list:
+def remove_duplicate(movie_list: List[str]) -> List[str]:
     """
     Get a single arg as movie_list, iterate on each movie and append them to new list
     finally we create a list of set to remove duplicate movies-series.    
@@ -77,16 +87,7 @@ def remove_duplicate(movie_list: list) -> list:
     Returns:
         list(str)
     """
-    
-    new_list = list()
-
-    for part in movie_list:
-        for movie in part:
-            new_list.append(movie)
-
-    normalized_data = list(set(new_list))
-
-    return normalized_data
+    return list(set(movie_list))
 
 
 def ready_for_insert(movies: list) -> tuple:
@@ -137,17 +138,25 @@ def ready_for_insert(movies: list) -> tuple:
     return duplicate_counter, crawled_counter
 
 
+async def main():
+    async with aiohttp.ClientSession() as session:
+        start_time = time.time()
+        start_page = 1
+        end_page = 3
+
+        crawled_movies = await movie_crawler(session, start_page, end_page)
+        crawled_series = await series_crawler(session, start_page, end_page)
+
+        movies = remove_duplicate(crawled_movies)
+        series = remove_duplicate(crawled_series)
+
+        insert_movies = ready_for_insert(movies)
+        insert_series = ready_for_insert(series)
+        end_time = time.time()
+        consumed_time = end_time - start_time
+        with open('crawl.log', 'a') as f:
+            f.write(f'Crawled Successfully on {datetime.datetime.now()}\n{insert_movies[1] + insert_series[1]} New Movies and Series\n{insert_movies[0]} duplicate movies found.\n{insert_series[0]} duplicate series found.\nConsumed Time -> {consumed_time:.2f} seconds!\n\n')
+
 
 if __name__ == '__main__':
-
-    crawled_movies = movie_crawler(1, 3)
-    crawled_series = series_crawler(1, 3)
-
-    movies = remove_duplicate(crawled_movies)
-    series = remove_duplicate(crawled_series)
-
-    insert_movies = ready_for_insert(movies)
-    insert_series = ready_for_insert(series)
-
-    with open('crawl.log', 'a') as f:
-        f.write(f'Crawled Successfully on {datetime.datetime.now()}\n{insert_movies[1] + insert_series[1]} New Movies and Series\n{insert_movies[0]} duplicate movies found.\n{insert_series[0]} duplicate series found.\n\n')
+    asyncio.run(main())
