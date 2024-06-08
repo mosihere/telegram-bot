@@ -38,7 +38,7 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     inline_options = []
     for movie in await search_movie(update.inline_query.query.replace(' ', '-')):
         movie_id = movie.get('id')
-        response = await handle_response(movie_id)
+        response = handle_response(movie_id)
         inline_options.append(
         InlineQueryResultArticle(
                 id=movie.get('id'),
@@ -55,9 +55,9 @@ async def search_movie(title: str):
 
 # Responses
 
-async def handle_response(movie_id: str) -> str:
+def handle_response(movie_id: str) -> str:
 
-    movie = await movie_links_endpoint(movie_id)
+    movie = movie_links_endpoint(movie_id)
     normalized_data = movie_data_normalizer(movie)
     if not normalized_data:
         return 'هنوز این فیلم رو نداریم :('
