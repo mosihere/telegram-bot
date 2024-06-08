@@ -1,6 +1,7 @@
 import os
 import re
 import time
+import aiohttp
 import requests
 import mysql.connector
 from tabulate import tabulate
@@ -355,7 +356,7 @@ def get_movies_from_db() -> List[tuple]:
     return movies
 
 
-def movie_endpoint(name: str) -> dict:
+async def movie_endpoint(name: str) -> dict:
     """
     Get a single arg as name
     send a request to specified endpoint and set name parameter as query_string
@@ -366,12 +367,12 @@ def movie_endpoint(name: str) -> dict:
     Returns:
         Dict
     """
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f'http://127.0.0.1:8000/movies/movies/?search={name}') as response:
+            return await response.json()
 
-    response = requests.get(f'http://127.0.0.1:8000/movies/movies/?search={name}')
-    return response.json()
 
-
-def movie_links_endpoint(movie_id: int) -> dict:
+async def movie_links_endpoint(movie_id: int) -> dict:
     """
     Get a single arg as name
     send a request to specified endpoint and set name parameter as query_string
@@ -382,9 +383,9 @@ def movie_links_endpoint(movie_id: int) -> dict:
     Returns:
         Dict
     """
-
-    response = requests.get(f'http://127.0.0.1:8000/movies/links/?movie_id={movie_id}')
-    return response.json()
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f'http://127.0.0.1:8000/movies/links/?movie_id={movie_id}') as response:
+            return await response.json()
 
 
 
