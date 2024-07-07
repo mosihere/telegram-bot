@@ -369,7 +369,7 @@ async def movie_endpoint(name: str) -> dict:
     """
 
     async with aiohttp.ClientSession() as session:
-        async with session.get(f'http://127.0.0.1:8000/movies/movies/?search={name}') as response:
+        async with session.get(f'http://127.0.0.1:8000/api/movies/?search={name}') as response:
             return await response.json()
 
 
@@ -385,7 +385,7 @@ def movie_links_endpoint(movie_id: int) -> dict:
         Dict
     """
 
-    response = requests.get(f'http://127.0.0.1:8000/movies/links/?movie_id={movie_id}')
+    response = requests.get(f'http://127.0.0.1:8000/api/links/?movie_id={movie_id}')
     return response.json()
 
 
