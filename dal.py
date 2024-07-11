@@ -50,7 +50,7 @@ def user_data_log(data: tuple) -> bool:
 
     try:
         with open('user_data.log', 'a') as file:
-            file.write(f'{data}\n\n')
+            file.write(f'{data}\n')
             return True
         
     except IOError as e:
