@@ -1,7 +1,7 @@
 import os
 import logging
 from uuid import uuid4
-from dal import movie_data_normalizer, movie_links_endpoint, movie_endpoint, get_movie_imdb_info, normalized_imdb_info
+from dal import movie_data_normalizer, movie_links_endpoint, movie_endpoint, get_movie_imdb_info, normalized_imdb_info, user_data_log
 from telegram import Update, InlineQueryResultArticle, InputTextMessageContent
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters, InlineQueryHandler, ChosenInlineResultHandler
 
@@ -46,6 +46,20 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
                 input_message_content=InputTextMessageContent(response[:4096])
         )
         )
+    
+    # Get User Info
+
+    inline_query = update.inline_query
+    user = inline_query.from_user
+
+    user_data = (
+        f"Query ID: {inline_query.id}\n"
+        f"From: {user.first_name} {user.last_name} (@{user.username})\n"
+        f"User ID: {user.id}\n"
+        f"Query: {query}\n"
+    )
+    user_data_log(user_data)
+
     await context.bot.answer_inline_query(update.inline_query.id, inline_options)
 
 
