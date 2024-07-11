@@ -43,6 +43,21 @@ def connect_to_database():
             return err
 
 
+def user_data_log(data: tuple) -> bool:
+    """
+    Append user data in a logfile named: user_data.log
+    """
+
+    try:
+        with open('user_data.log', 'a') as file:
+            file.write(f'{data}\n\n')
+            return True
+        
+    except IOError as e:
+        print(f"An error occurred while writing to the file: {e}")
+        return False
+
+
 def get_movie_imdb_info(movie: str, api_key: str) -> Dict:
     response = requests.get(f'{MOVIE_INFO_URL}/?t={movie}&apikey={api_key}')
     return response.json()
