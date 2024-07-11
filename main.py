@@ -33,7 +33,7 @@ async def movie_info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Handle the inline query. This is run when you type: @botusername <query>"""
     query = update.inline_query.query
-    if not query:
+    if len(query) < 3:
         return
     inline_options = []
     for movie in await search_movie(update.inline_query.query.replace(' ', '-')):
