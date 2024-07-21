@@ -2,8 +2,8 @@ import os
 import logging
 from uuid import uuid4
 from dal import movie_data_normalizer, movie_links_endpoint, movie_endpoint, get_movie_imdb_info, normalized_imdb_info, user_data_log
-from telegram import Update, InlineQueryResultArticle, InputTextMessageContent
-from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters, InlineQueryHandler, ChosenInlineResultHandler
+from telegram import Update, InlineQueryResultArticle, InputTextMessageContent, InlineKeyboardMarkup, InlineKeyboardButton
+from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters, InlineQueryHandler, CallbackQueryHandler
 
 TOKEN = os.environ.get('BOT_TOKEN')
 API_KEY = os.environ.get('API_KEY')
@@ -36,19 +36,21 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     if len(query) < 3:
         return
     inline_options = []
-    for movie in await search_movie(update.inline_query.query.replace(' ', '-')):
+    for movie in await search_movie(query.replace(' ', '-')):
         movie_id = movie.get('id')
-        response = handle_response(movie_id)
         inline_options.append(
-        InlineQueryResultArticle(
-                id=movie.get('id'),
+            InlineQueryResultArticle(
+                id=str(movie_id),
                 title=movie.get('name'),
-                input_message_content=InputTextMessageContent(response[:4096])
-        )
+                input_message_content=InputTextMessageContent(movie['name']),
+                description=movie.get('description', ''),
+                reply_markup=InlineKeyboardMarkup([
+                    [InlineKeyboardButton("لینک های دانلود", callback_data=f"details:{movie_id}")]
+                ])
+            )
         )
     
     # Get User Info
-
     inline_query = update.inline_query
     user = inline_query.from_user
 
@@ -60,7 +62,17 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     )
     user_data_log(user_data)
 
-    await context.bot.answer_inline_query(update.inline_query.id, inline_options)
+    await update.inline_query.answer(inline_options)
+
+
+async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    query = update.callback_query
+    data = query.data
+
+    if data.startswith("details:"):
+        movie_id = data.split(":")[1]
+        response = handle_response(movie_id)
+        await query.edit_message_text(text=response)
 
 
 async def search_movie(title: str):
@@ -160,6 +172,7 @@ if __name__ == '__main__':
 
     # on inline queries - show corresponding inline results
     app.add_handler(InlineQueryHandler(inline_query))
+    app.add_handler(CallbackQueryHandler(button))
 
     # Errors
     app.add_error_handler(error)
