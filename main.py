@@ -1,6 +1,7 @@
 import os
 import logging
 from uuid import uuid4
+from datetime import datetime
 from dal import movie_data_normalizer, movie_links_endpoint, movie_endpoint, get_movie_imdb_info, normalized_imdb_info, user_data_log
 from telegram import Update, InlineQueryResultArticle, InputTextMessageContent, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters, InlineQueryHandler, CallbackQueryHandler
@@ -53,12 +54,23 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     # Get User Info
     inline_query = update.inline_query
     user = inline_query.from_user
+    
+    # Get DateTime Info
+    datetime_info = datetime.now()
+    year = datetime_info.year
+    month = datetime_info.month
+    day = datetime_info.day
+    hour = datetime_info.hour
+    minute = datetime_info.minute
+    second = datetime_info.second
 
     user_data = (
         f"Query ID: {inline_query.id}\n"
         f"From: {user.first_name} {user.last_name} (@{user.username})\n"
         f"User ID: {user.id}\n"
         f"Query: {query}\n"
+        f"Date: {year:04d}-{month:02d}-{day:02d}\n"
+        f"Time: {hour:02d}:{minute:02d}:{second:02d}\n"
     )
     user_data_log(user_data)
 
