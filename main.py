@@ -119,7 +119,7 @@ def handle_response(movie_id: str) -> str:
     for movie in normalized_data:
         movie_data_list.append('✔️' + movie.get('quality_and_codec'))
         raw_link = movie.get('link')
-        get_season_episode = re.search(r's\d{2}e\d{2}', raw_link)
+        get_season_episode = re.search(r'[sS]\d{2}[eE]\d{2}', raw_link)
         
         if get_season_episode:
             html_link = f'📥 {get_season_episode.group(0).upper()} <a href="{raw_link}">Download</a>\n'
