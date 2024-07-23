@@ -405,8 +405,6 @@ def movie_links_endpoint(movie_id: int) -> dict:
 
 
 
-
-
 if __name__ == '__main__':
     movies = get_movies_from_db()
     for movie in movies:
