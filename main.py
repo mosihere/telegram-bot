@@ -1,6 +1,6 @@
+import re
 import os
 import logging
-from uuid import uuid4
 from datetime import datetime
 from dal import movie_data_normalizer, movie_links_endpoint, movie_endpoint, get_movie_imdb_info, normalized_imdb_info, user_data_log
 from telegram import Update, InlineQueryResultArticle, InputTextMessageContent, InlineKeyboardMarkup, InlineKeyboardButton
@@ -39,6 +39,7 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     inline_options = []
     for movie in await search_movie(query.replace(' ', '-')):
         movie_id = movie.get('id')
+        movie_name = movie.get('name')
         inline_options.append(
             InlineQueryResultArticle(
                 id=str(movie_id),
@@ -46,7 +47,8 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
                 input_message_content=InputTextMessageContent(movie['name']),
                 description=movie.get('description', ''),
                 reply_markup=InlineKeyboardMarkup([
-                    [InlineKeyboardButton("لینک های دانلود", callback_data=f"details:{movie_id}")]
+                    [InlineKeyboardButton("لینک های دانلود", callback_data=f"links:{movie_id}")],
+                    [InlineKeyboardButton("اطلاعات فیلم", callback_data=f"info:{movie_name}")]
                 ])
             )
         )
@@ -81,10 +83,21 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = update.callback_query
     data = query.data
 
-    if data.startswith("details:"):
+    if data.startswith("links:"):
         movie_id = data.split(":")[1]
         response = handle_response(movie_id)
-        await query.edit_message_text(text=response)
+        await query.edit_message_text(text=response, parse_mode='Html')
+
+    elif data.startswith("info:"):
+        final_result = list()
+        movie_name = data.split(":")[1]
+        movie_info = get_movie_imdb_info(movie_name, API_KEY)
+        result = normalized_imdb_info(movie_info)
+        
+        for key, value in result.items():
+            final_result.append(f'{key}: {value}')
+        
+        await query.edit_message_text('\n\n'.join(final_result))
 
 
 async def search_movie(title: str):
@@ -102,67 +115,33 @@ def handle_response(movie_id: str) -> str:
     movie_name = normalized_data[0].get('name')
     published_date = normalized_data[0].get('published_at')
 
-    lst = []
+    movie_data_list = []
     for movie in normalized_data:
-        lst.append('✔️' + movie.get('quality_and_codec'))
-        lst.append(movie.get('link'))
+        movie_data_list.append('✔️' + movie.get('quality_and_codec'))
+        raw_link = movie.get('link')
+        get_season_episode = re.search(r's\d{2}e\d{2}', raw_link)
+        
+        if get_season_episode:
+            html_link = f'📥 {get_season_episode.group(0).upper()} <a href="{raw_link}">Download</a>\n'
+            movie_data_list.append(html_link)
+            continue
+
+        else:
+            html_link = f'📥 <a href="{raw_link}">Download</a>\n'
+            movie_data_list.append(html_link)
 
     if published_date:
-        lst.insert(0, f'🍿{movie_name}\n\n📆 {published_date}\n\n')
-        lst.insert(0, '🎞️ کیفیت های مختلف 🎞️\n\n')
-        lst.insert(0, f'❗️برای دانلود VPN خود را خاموش کنید❗️\n\n')
+        movie_data_list.insert(0, f'🍿{movie_name}\n\n📆 {published_date}\n\n')
+        movie_data_list.insert(0, '🎞️ کیفیت های مختلف 🎞️\n\n')
+        movie_data_list.insert(0, f'❗️برای دانلود VPN خود را خاموش کنید❗️\n\n')
 
     else:
-        lst.insert(0, f'🍿{movie_name}\n\n')
-        lst.insert(0, '🎞️ کیفیت های مختلف 🎞️\n\n')
-        lst.insert(0, f'❗️برای دانلود VPN خود را خاموش کنید❗️\n\n')
+        movie_data_list.insert(0, f'🍿{movie_name}\n\n')
+        movie_data_list.insert(0, '🎞️ کیفیت های مختلف 🎞️\n\n')
+        movie_data_list.insert(0, f'❗️برای دانلود VPN خود را خاموش کنید❗️\n\n')
 
     
-    return f'\n----------------------------------\n'.join(lst)
-
-
-async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-
-    final_result = list()
-    text = update.message.text
-    movie_info = get_movie_imdb_info(text, API_KEY)
-    result = normalized_imdb_info(movie_info)
-    
-    for key, value in result.items():
-        final_result.append(f'{key}: {value}')
-    
-    await update.message.reply_text('\n\n'.join(final_result))
-        
-    # message_type = update.message.chat.type
-    # text = update.message.text.replace(' ', '-')
-
-    # with open('users.log', 'a') as f:
-    #     f.write(f'User {update.message.chat.id} in {message_type}: "{text}"\n')
-
-
-    # if message_type == 'group':
-
-    #     if BOT_USERNAME in text:
-    #         print(text)
-    #         new_text = text.replace(BOT_USERNAME, '').strip().lstrip('-')
-    #         print(new_text)
-    #         response = handle_response(new_text)
-
-    #     else:
-    #         return
-        
-    # else:
-    #     response = handle_response(text)
-
-
-    # print(f'Bot: {response}')
-
-    # if len(response) > 4096:
-    #     for x in range(0, len(response), 4096):
-    #         await update.message.reply_text(response[x: x+4096])
-
-    # else:
-    #     await update.message.reply_text(response)
+    return f'\n----------------------------------\n'.join(movie_data_list)
 
 
 async def error(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -178,9 +157,8 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler('start', start))
     app.add_handler(CommandHandler('getinfo', movie_info))
 
-
     # Messages
-    app.add_handler(MessageHandler(filters.TEXT, handle_message))
+    # app.add_handler(MessageHandler(filters.TEXT, handle_message))
 
     # on inline queries - show corresponding inline results
     app.add_handler(InlineQueryHandler(inline_query))
