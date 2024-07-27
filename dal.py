@@ -222,7 +222,7 @@ def get_movie_data(record: tuple) -> None:
     url = record[2]
     print('\n++ Extracted Movie URLs ++\n')
     response = requests.get(url)
-    links = re.findall(r'https://.*kingupload.*mkv', response.text)
+    links = re.findall(r'https://.*kingupload.*(?:mp4|mkv)', response.text)
     if links:
         links = list(set(links))
         for link in links:
