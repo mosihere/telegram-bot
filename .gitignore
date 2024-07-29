@@ -162,3 +162,6 @@ cython_debug/
 # Log Files
 *.log
 *.logs
+
+# User-Defined Data Files
+last_movie_id.txt
