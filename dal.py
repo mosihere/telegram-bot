@@ -454,5 +454,4 @@ if __name__ == '__main__':
     for movie in movies:
         series_links = get_series_data(movie)
         movie_links = get_movie_data(movie)
-    last_movie_id = update_last_movie_id(movies[-1][0])
-    print(f'Links Extracted Untill Movie with ID -> {last_movie_id}')
+    update_last_movie_id(movies[-1][0])
