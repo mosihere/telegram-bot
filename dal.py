@@ -43,6 +43,38 @@ def connect_to_database():
             return err
 
 
+def get_last_movie_id() -> str:
+    """
+    Read Last Row ID From file
+
+    Returns:
+        str(number)
+    """
+
+    try:
+        with open('last_movie_id.txt', 'r') as file:
+            last_row_id = file.read()
+        return last_row_id
+    
+    except FileNotFoundError:
+        with open('last_movie_id.txt', 'w') as file:
+            file.write('1')
+        return '1'
+
+
+def update_last_movie_id(movie_id: str) -> str:
+    """
+    Rewrite the file with last movie_id
+
+    Returns:
+        str(number)
+    """
+
+    with open('last_movie_id.txt', 'w') as file:
+        next_row_id = file.write(str(movie_id))
+    return next_row_id
+
+
 def user_data_log(data: tuple) -> bool:
     """
     Append user data in a logfile named: user_data.log
@@ -63,7 +95,17 @@ def get_movie_imdb_info(movie: str, api_key: str) -> Dict:
     return response.json()
 
 
-def normalized_imdb_info(movie_info: dict):
+def normalized_imdb_info(movie_info: dict) -> dict:
+    """
+    Create a Beautiful Dictionary From JSON response
+
+    Args:
+        movie_info: dict
+    
+    Returns:
+        dict
+    """
+
     result = {
         '🏷️ Title': movie_info.get('Title'),
         '🗓️Year': movie_info.get('Year'),
@@ -363,11 +405,13 @@ def get_movies_from_db() -> List[tuple]:
         list(tuple)
     """
 
-    sql_command = """ SELECT * FROM movies_movie WHERE id = 3857"""
+    last_row_id = get_last_movie_id()
+    sql_command = f""" SELECT * FROM movies_movie WHERE id > {last_row_id}"""
     conx = connect_to_database()
     cursor = conx.cursor()
     cursor.execute(sql_command)
     movies = cursor.fetchall()
+    conx.close()
     return movies
 
 
@@ -410,3 +454,5 @@ if __name__ == '__main__':
     for movie in movies:
         series_links = get_series_data(movie)
         movie_links = get_movie_data(movie)
+    last_movie_id = update_last_movie_id(movies[-1][0])
+    print(f'Links Extracted Untill Movie with ID -> {last_movie_id}')
