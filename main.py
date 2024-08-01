@@ -120,9 +120,19 @@ def handle_response(movie_id: str) -> str:
         movie_data_list.append('✔️' + movie.get('quality_and_codec'))
         raw_link = movie.get('link')
         get_season_episode = re.search(r'[sS]\d{2}[eE]\d{2}', raw_link)
+        collection_pattern = re.compile(r'([^/]+?\.\d{4})|([^/]+\.\d{4}\.\d{4})')
+
         
         if get_season_episode:
             html_link = f'📥 {get_season_episode.group(0).upper()} <a href="{raw_link}">Download</a>\n'
+            movie_data_list.append(html_link)
+            continue
+
+        elif collection_pattern:
+            match = collection_pattern.search(raw_link)
+            name_normalizer = lambda string: string.replace('.', ' ')
+            info = match.group(0)
+            html_link = f'📥 {name_normalizer(info)} <a href="{raw_link}">Download</a>\n'
             movie_data_list.append(html_link)
             continue
 
