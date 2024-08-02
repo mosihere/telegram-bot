@@ -105,7 +105,6 @@ async def search_movie(title: str):
     return movie
 
 # Responses
-
 def handle_response(movie_id: str) -> str:
 
     movie = movie_links_endpoint(movie_id)
@@ -115,26 +114,30 @@ def handle_response(movie_id: str) -> str:
     movie_name = normalized_data[0].get('name')
     published_date = normalized_data[0].get('published_at')
 
+    season_episode_pattern = re.compile(r'[sS]\d{2}[eE]\d{2}')
+    collection_pattern = re.compile(r'([^/]+?\.\d{4})|([^/]+\.\d{4}\.\d{4})')
+
     movie_data_list = []
     for movie in normalized_data:
         movie_data_list.append('✔️' + movie.get('quality_and_codec'))
         raw_link = movie.get('link')
-        get_season_episode = re.search(r'[sS]\d{2}[eE]\d{2}', raw_link)
-        collection_pattern = re.compile(r'([^/]+?\.\d{4})|([^/]+\.\d{4}\.\d{4})')
+        is_collection = re.search('[cC]ollection', raw_link)
+        get_season_episode = season_episode_pattern.search(raw_link)
 
-        
         if get_season_episode:
             html_link = f'📥 {get_season_episode.group(0).upper()} <a href="{raw_link}">Download</a>\n'
             movie_data_list.append(html_link)
             continue
 
-        elif collection_pattern:
+        elif is_collection:
             match = collection_pattern.search(raw_link)
-            name_normalizer = lambda string: string.replace('.', ' ')
-            info = match.group(0)
-            html_link = f'📥 {name_normalizer(info)} <a href="{raw_link}">Download</a>\n'
-            movie_data_list.append(html_link)
-            continue
+            if match:
+                name_normalizer = lambda string: string.replace('.', ' ')
+                info = match.group(0)
+                html_link = f'📥 {name_normalizer(info)} <a href="{raw_link}">Download</a>\n'
+                movie_data_list.append(html_link)
+                continue
+            pass
 
         else:
             html_link = f'📥 <a href="{raw_link}">Download</a>\n'
@@ -150,7 +153,6 @@ def handle_response(movie_id: str) -> str:
         movie_data_list.insert(0, '🎞️ کیفیت های مختلف 🎞️\n\n')
         movie_data_list.insert(0, f'❗️برای دانلود VPN خود را خاموش کنید❗️\n\n')
 
-    
     return f'\n----------------------------------\n'.join(movie_data_list)
 
 
