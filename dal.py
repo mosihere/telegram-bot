@@ -1,6 +1,7 @@
 import os
 import re
 import time
+from datetime import datetime
 import aiohttp
 import requests
 import mysql.connector
@@ -450,8 +451,21 @@ def movie_links_endpoint(movie_id: int) -> dict:
 
 
 if __name__ == '__main__':
+    datetime_info = datetime.now()
+    year = datetime_info.year
+    month = datetime_info.month
+    day = datetime_info.day
+    hour = datetime_info.hour
+    minute = datetime_info.minute
+    second = datetime_info.second
+
     movies = get_movies_from_db()
     for movie in movies:
         series_links = get_series_data(movie)
         movie_links = get_movie_data(movie)
-    update_last_movie_id(movies[-1][0])
+    try:
+        update_last_movie_id(movies[-1][0])
+    except IndexError:
+        print('There is No New Crawled Movie yet!')
+    print()
+    print(f'{len(movies)} Movies/Series Links Extracted In Date: {year:04d}-{month:02d}-{day:02d}\nTime: {hour:02d}:{minute:02d}:{second:02d}\n')
