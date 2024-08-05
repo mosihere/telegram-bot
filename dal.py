@@ -455,8 +455,8 @@ if __name__ == '__main__':
     year = datetime_info.year
     month = datetime_info.month
     day = datetime_info.day
-    hour = datetime_info.hour
-    minute = datetime_info.minute
+    hour = datetime_info.hour + 4
+    minute = datetime_info.minute + 30
     second = datetime_info.second
 
     movies = get_movies_from_db()
@@ -466,6 +466,5 @@ if __name__ == '__main__':
     try:
         update_last_movie_id(movies[-1][0])
     except IndexError:
-        print('There is No New Crawled Movie yet!')
-    print()
+        pass
     print(f'{len(movies)} Movies/Series Links Extracted In Date: {year:04d}-{month:02d}-{day:02d}\nTime: {hour:02d}:{minute:02d}:{second:02d}\n')
