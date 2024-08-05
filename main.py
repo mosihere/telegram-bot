@@ -62,7 +62,7 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     year = datetime_info.year
     month = datetime_info.month
     day = datetime_info.day
-    hour = datetime_info.hour + 4
+    hour = datetime_info.hour + 3
     minute = datetime_info.minute + 30
     second = datetime_info.second
 
