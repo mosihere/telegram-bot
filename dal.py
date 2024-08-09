@@ -455,8 +455,8 @@ if __name__ == '__main__':
     year = datetime_info.year
     month = datetime_info.month
     day = datetime_info.day
-    hour = datetime_info.hour + 3
-    minute = datetime_info.minute + 30
+    hour = datetime_info.hour
+    minute = datetime_info.minute
     second = datetime_info.second
 
     movies = get_movies_from_db()
