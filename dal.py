@@ -46,10 +46,11 @@ def connect_to_database():
 
 def get_last_movie_id() -> str:
     """
-    Read Last Row ID From file
+    Read Last Row ID from file. If the file does not exist or is empty,
+    initialize it with '1' and return '1'.
 
     Returns:
-        str(number)
+        str: The last movie ID as a string.
     """
 
     try:
@@ -65,15 +66,18 @@ def get_last_movie_id() -> str:
 
 def update_last_movie_id(movie_id: str) -> str:
     """
-    Rewrite the file with last movie_id
+    Rewrite the file with the last movie_id.
+
+    Args:
+        movie_id (str): The movie ID to be written to the file.
 
     Returns:
-        str(number)
+        str: The movie ID that was written to the file.
     """
 
     with open('last_movie_id.txt', 'w') as file:
-        next_row_id = file.write(str(movie_id))
-    return next_row_id
+        file.write(str(movie_id))
+    return movie_id
 
 
 def user_data_log(data: tuple) -> bool:
@@ -160,7 +164,7 @@ def is_duplicate(movie_name: str) -> bool | str:
         return False
     
     except mysql.connector.Error as err:
-        return f'SomeThing failed: {err}'
+        return f'Something failed: {err}'
 
 
 def create_record_for_movies(val: list[tuple], has_published_date: bool = False) -> None | str:
@@ -180,37 +184,29 @@ def create_record_for_movies(val: list[tuple], has_published_date: bool = False)
     """
 
     if has_published_date:
-       try:
-            sql_command = """
-                INSERT INTO movies_movie (
-                    url, name, published_at
-                )
-                VALUES (%s, %s, %s) """
-            cnx = connect_to_database()
-            cursor = cnx.cursor()
-            cursor.executemany(sql_command, val)
-            cnx.commit()
-            cnx.close()
-
-       except mysql.connector.Error as err:
-           return f'We faced an error: {err}'
-          
-    else:
-        try:
-            sql_command = """
+        sql_command = """
             INSERT INTO movies_movie (
-                url, name
+                url, name, published_at
             )
-            VALUES (%s, %s) """
+            VALUES (%s, %s, %s)
+            """
+    else:
+        sql_command = """
+        INSERT INTO movies_movie (
+            url, name
+        )
+        VALUES (%s, %s)
+        """
+
+    try:
+        cnx = connect_to_database()
+        cursor = cnx.cursor()
+        cursor.executemany(sql_command, val)
+        cnx.commit()
+        cnx.close()
         
-            cnx = connect_to_database()
-            cursor = cnx.cursor()
-            cursor.executemany(sql_command, val)
-            cnx.commit()
-            cnx.close()
-        
-        except mysql.connector.Error as err:
-           return f'We faced an error: {err}'
+    except mysql.connector.Error as err:
+        return f'We faced an error: {err}'
 
 
 def create_record_for_movie_links(val: tuple) -> int | str:
@@ -247,18 +243,18 @@ def create_record_for_movie_links(val: tuple) -> int | str:
         return f'We faced an error: {err}'
 
 
-def get_movie_data(record: tuple) -> None:
+def get_movie_data(record: tuple) -> bool:
     """
     Get a single arg as record
-    request the given url, seprate mkv file extensions with regex
-    iterate on finded direct mkv links to find quality of them
+    request the given url, seprate mkv|mp4 file extensions with regex
+    iterate on founded direct mkv|mp4 links to find quality of them
     and then creating a movie_record.
     
     Args:
         record: tuple
 
     Returns:
-        None
+        bool
     """
 
     id = record[0]
@@ -266,28 +262,28 @@ def get_movie_data(record: tuple) -> None:
     print('\n++ Extracted Movie URLs ++\n')
     response = requests.get(url)
     links = re.findall(r'https://.*kingupload.*(?:mp4|mkv)', response.text)
-    if links:
-        links = list(set(links))
-        for link in links:
-            quality = find_movie_quality(link)
-            if not quality:
-                continue
-            quality = quality[0]
-            codec = 'x265' if 'x265' in link else 'x264'
-            data = (link, quality, id, codec)
-            create_record_for_movie_links(data)
-            time.sleep(2)
-        else:
-            return True
-    else:
+
+    if not links:
         return False
+    
+    links = list(set(links))
+    for link in links:
+        quality = find_movie_quality(link)
+        if not quality:
+            continue
+        quality = quality[0]
+        codec = 'x265' if 'x265' in link else 'x264'
+        data = (link, quality, id, codec)
+        create_record_for_movie_links(data)
+        time.sleep(2)
+    return True
 
 
-def get_series_data(record: tuple):
+def get_series_data(record: tuple) -> None:
     """
     Get a single arg as record
     request the given url, seprate season url with regex
-    iterate on finded direct seasons links to find season number
+    iterate on founded direct seasons links to find season number
     and then creating a movie_record.
     
     Args:
@@ -319,6 +315,7 @@ def get_series_data(record: tuple):
             data = (serial_link, season, id, codec)
             create_record_for_movie_links(data)
             time.sleep(2)
+        return
             
     elif new_links_page:
         new_links_page = list(set(new_links_page))
@@ -335,8 +332,8 @@ def get_series_data(record: tuple):
             data = (series_link, season, id, codec)
             create_record_for_movie_links(data)
             time.sleep(2)
-    else:
         return
+    return
 
 
 def movie_data_normalizer(movies: List[Dict]) -> List[Dict]:
