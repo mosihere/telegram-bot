@@ -13,7 +13,8 @@ BASE_URL = "https://www.myf2mx.ir"
 
 
 async def fetch(session: aiohttp.ClientSession, url: str):
-    async with session.get(url) as response:
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
+    async with session.get(url, headers=headers) as response:
         return await response.text()
 
 
