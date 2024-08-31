@@ -260,7 +260,9 @@ def get_movie_data(record: tuple) -> bool:
     id = record[0]
     url = record[2]
     print('\n++ Extracted Movie URLs ++\n')
-    response = requests.get(url)
+
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
+    response = requests.get(url, headers=headers)
     links = re.findall(r'https://.*kingupload.*(?:mp4|mkv)', response.text)
 
     if not links:
@@ -296,7 +298,9 @@ def get_series_data(record: tuple) -> None:
     id = record[0]
     url = record[2]
     print('\n++ Extracted Series URLs ++\n')
-    response = requests.get(url)
+
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
+    response = requests.get(url, headers=headers)
     links_page = re.findall(r'https://.*kingupload.*/Serial/.*[0-9]/', response.text)
     new_links_page = re.findall(r'https://.*kingupload.*/Series/.*[0-9]/', response.text)
 
