@@ -408,10 +408,10 @@ def get_movies_from_db() -> List[tuple]:
     """
 
     last_row_id = get_last_movie_id()
-    sql_command = f""" SELECT * FROM movies_movie WHERE id > {last_row_id}"""
+    sql_command = f""" SELECT * FROM movies_movie WHERE id > %s"""
     conx = connect_to_database()
     cursor = conx.cursor()
-    cursor.execute(sql_command)
+    cursor.execute(sql_command, (last_row_id,))
     movies = cursor.fetchall()
     conx.close()
     return movies
