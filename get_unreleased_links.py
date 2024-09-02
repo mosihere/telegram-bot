@@ -1,28 +1,26 @@
-from typing import List
-from dal import get_movie_data, get_series_data, connect_to_database
+from dal import get_movie_data, get_series_data, get_movie_from_db_by_id
 
 
-def get_movies_from_db(row_id: str) -> List[tuple]:
+def extract_movie_links(movie_id: str) -> None:
     """
-    Read record from Database 
-
-    Returns:
-        list(tuple)
+    Extract download links for the movie or series with the given ID.
+    
+    Args:
+        movie_id (str): The ID of the movie to process.
     """
 
-    sql_command = f""" SELECT * FROM movies_movie WHERE id = %s"""
-    conx = connect_to_database()
-    cursor = conx.cursor()
-    cursor.execute(sql_command, (row_id,))
-    movies = cursor.fetchall()
-    conx.close()
-    return movies
+    movie = get_movie_from_db_by_id(movie_id)
+
+    if not movie:
+        print("No movie found with the given ID.")
+        return
+    
+    get_movie_data(movie)
+    get_series_data(movie)
+    return
 
 
 
 if __name__ == '__main__':
     row_id = input('Movie ID to Extract Download Links: ')
-    movies = get_movies_from_db(row_id)
-    for movie in movies:
-            series_links = get_series_data(movie)
-            movie_links = get_movie_data(movie)
+    movies = extract_movie_links(row_id)
