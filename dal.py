@@ -417,6 +417,24 @@ def get_movies_from_db() -> List[tuple]:
     return movies
 
 
+def get_movie_from_db_by_id(movie_id: str) -> tuple | None:
+    """
+    Read Movie information by ID
+
+    Returns:
+        Tuple | None
+    """
+
+    sql_command = f""" SELECT * FROM movies_movie WHERE id = %s"""
+    conx = connect_to_database()
+    cursor = conx.cursor()
+    cursor.execute(sql_command, (movie_id,))
+    movie = cursor.fetchone()
+    cursor.close()
+    conx.close()
+    return movie
+
+
 async def movie_endpoint(name: str) -> dict:
     """
     Get a single arg as name
@@ -461,11 +479,16 @@ if __name__ == '__main__':
     second = datetime_info.second
 
     movies = get_movies_from_db()
-    for movie in movies:
-        series_links = get_series_data(movie)
-        movie_links = get_movie_data(movie)
-    try:
-        update_last_movie_id(movies[-1][0])
-    except IndexError:
-        pass
-    print(f'{len(movies)} Movies/Series Links Extracted In Date: {year:04d}-{month:02d}-{day:02d}\nTime: {hour:02d}:{minute:02d}:{second:02d}\n')
+
+    if movies:
+        for movie in movies:
+            series_links = get_series_data(movie)
+            movie_links = get_movie_data(movie)
+        try:
+            update_last_movie_id(movies[-1][0])
+        except IndexError:
+            pass
+        print(f'{len(movies)} Movies/Series Links Extracted In Date: {year:04d}-{month:02d}-{day:02d}\nTime: {hour:02d}:{minute:02d}:{second:02d}\n')
+
+    else:
+        print('No movies found to process.')
