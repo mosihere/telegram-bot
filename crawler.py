@@ -9,7 +9,7 @@ from dal import is_duplicate, create_record_for_movies
 # Careful! Just run this module when you want crawl movies.
 
 
-BASE_URL = "https://www.myf2mx.ir"
+BASE_URL = "https://www.f2mex.ir"
 
 
 async def fetch(session: aiohttp.ClientSession, url: str):
