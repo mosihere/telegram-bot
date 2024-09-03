@@ -40,10 +40,12 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     for movie in await search_movie(query.replace(' ', '-')):
         movie_id = movie.get('id')
         movie_name = movie.get('name')
+        poster_url=movie.get('poster_url')
         inline_options.append(
             InlineQueryResultArticle(
                 id=str(movie_id),
                 title=movie.get('name'),
+                thumbnail_url=poster_url,
                 input_message_content=InputTextMessageContent(movie['name']),
                 description=movie.get('description', ''),
                 reply_markup=InlineKeyboardMarkup([
