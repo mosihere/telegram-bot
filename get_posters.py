@@ -88,8 +88,10 @@ if __name__ == '__main__':
     movies = get_movies_from_db()
 
     for movie in movies:
-        movie_poster, movie_id = get_movie_poster_url(movie)
-        if movie_poster:
+        movie_info = get_movie_poster_url(movie)
+        if movie_info:
+            movie_poster = movie_info[0]
+            movie_id = movie_info[1]
             set_movie_poster(movie_id, movie_poster)
         else:
             continue
