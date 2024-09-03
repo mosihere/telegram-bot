@@ -50,10 +50,9 @@ def get_movie_poster_url(record: tuple) -> tuple | None:
     pattern = rf'{BASE_URL}/wp-content/uploads/poster/.*/{movie_site_id}-[a-zA-Z0-9]+\.webp'
     match = re.search(pattern, response.text)
 
-    match = match.group(0)
-
     if match:
-        return match, movie_id
+        poster_url = match.group(0)
+        return poster_url, movie_id
 
     return None
 
