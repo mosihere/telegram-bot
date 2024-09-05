@@ -1,9 +1,9 @@
 import re
+import time
 import requests
 from typing import List
 from crawler import BASE_URL
 from dal import connect_to_database
-
 
 
 def get_movies_from_db() -> List[tuple]:
@@ -93,5 +93,6 @@ if __name__ == '__main__':
             movie_poster = movie_info[0]
             movie_id = movie_info[1]
             set_movie_poster(movie_id, movie_poster)
+            time.sleep(2)
         else:
             continue
