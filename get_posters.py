@@ -1,6 +1,6 @@
 import time
 import sys
-import datetime
+from datetime import datetime
 from dal import get_movies_from_db, get_movie_poster_url, set_movie_poster, get_movie_from_db_by_id
 
 
