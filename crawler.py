@@ -42,7 +42,7 @@ async def movie_crawler(session: aiohttp.ClientSession, start_page: int, end_pag
     pages_content = await asyncio.gather(*tasks)
     all_links = []
     for content in pages_content:
-        links = re.findall(f'{BASE_URL}/\d*/\w*[-]*\d*\w*[-]*\d*\w*[-]*\d*\w*[-]*\d*\w*[-]*\d*\w*[-]*\d*\w*[-]*\d*\w*[-]*\d*', content)
+        links = re.findall(f'{BASE_URL}/\d+/[\w-]+/', content)
         all_links.extend(list(set(links)))
         
     return all_links
@@ -72,7 +72,7 @@ async def series_crawler(session: aiohttp.ClientSession, start_page: int, end_pa
     pages_content = await asyncio.gather(*tasks)
     all_links = []
     for content in pages_content:
-        links = re.findall(f'{BASE_URL}/\d*/\w*[-]*\d*\w*[-]*\d*\w*[-]*\d*\w*[-]*\d*\w*[-]*\d*\w*[-]*\d*\w*[-]*\d*\w*[-]*\d*\w*[-]*\d*', content)
+        links = re.findall(f'{BASE_URL}/\d+/[\w-]+/', content)
         all_links.extend(list(set(links)))
 
     return all_links
@@ -114,7 +114,7 @@ def ready_for_insert(movies: list) -> tuple:
 
         url = data
         movie_name = data.split('/')
-        movie_name = movie_name[-1]
+        movie_name = movie_name[-2]
 
         if is_duplicate(movie_name):
             duplicate_counter += 1
@@ -142,8 +142,8 @@ def ready_for_insert(movies: list) -> tuple:
 async def main():
     async with aiohttp.ClientSession() as session:
         start_time = time.time()
-        start_page = 1
-        end_page = 3
+        start_page = 4
+        end_page = 6
 
         crawled_movies = await movie_crawler(session, start_page, end_page)
         crawled_series = await series_crawler(session, start_page, end_page)
