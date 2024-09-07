@@ -142,8 +142,8 @@ def ready_for_insert(movies: list) -> tuple:
 async def main():
     async with aiohttp.ClientSession() as session:
         start_time = time.time()
-        start_page = 4
-        end_page = 6
+        start_page = 1
+        end_page = 3
 
         crawled_movies = await movie_crawler(session, start_page, end_page)
         crawled_series = await series_crawler(session, start_page, end_page)
