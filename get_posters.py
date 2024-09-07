@@ -31,7 +31,7 @@ else:
         if movie_info:
             movie_poster = movie_info[0]
             movie_id = movie_info[1]
-            print(f'Poster for movie with id: {movie_id} -> Poster{movie_poster}\nExtracted On: {year:04d}-{month:02d}-{day:02d}\nTime: {hour:02d}:{minute:02d}:{second:02d}\n')
+            print(f'Poster for movie with id: {movie_id} -> Poster {movie_poster}\nExtracted On: {year:04d}-{month:02d}-{day:02d}\nTime: {hour:02d}:{minute:02d}:{second:02d}\n')
             set_movie_poster(movie_id, movie_poster)
             time.sleep(2)
         else:
