@@ -4,13 +4,10 @@ import asyncio
 import aiohttp
 import datetime
 from typing import List
+from utils import BASE_URL
 from dal import is_duplicate, create_record_for_movies
 
 # Careful! Just run this module when you want crawl movies.
-
-
-BASE_URL = "https://www.f2mex.ir"
-
 
 async def fetch(session: aiohttp.ClientSession, url: str):
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
