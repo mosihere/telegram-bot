@@ -7,6 +7,24 @@ MOVIE_INFO_URL = 'https://www.omdbapi.com'
 BASE_URL = 'https://www.f2mex.ir'
 
 
+
+def clean_movie_name_for_api(movie_name: str) -> str:
+    """
+    Removes the year suffix (e.g., '-2024') from the movie name if present.
+
+    Args:
+        movie_name: str
+    
+    Returns:
+        str: Cleaned Movie name without the year suffix.
+    """
+
+    if len(movie_name) > 5 and movie_name[-5] == '-' and movie_name[-4:].isdigit():
+        return movie_name[-5:]
+    
+    return movie_name
+
+
 def get_datetime_info() -> Dict:
     """
     Getting Current Datetime Info
