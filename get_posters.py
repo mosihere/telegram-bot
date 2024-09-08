@@ -25,14 +25,16 @@ if len(sys.argv) > 1:
 
 else:
     movies = get_movies_from_db()
-
+    movie_counts = 0
     for movie in movies:
         movie_info = get_movie_poster_url(movie)
         if movie_info:
             movie_poster = movie_info[0]
             movie_id = movie_info[1]
-            print(f'Poster for movie with id: {movie_id} -> Poster {movie_poster}\nExtracted On: {year:04d}-{month:02d}-{day:02d}\nTime: {hour:02d}:{minute:02d}:{second:02d}\n')
             set_movie_poster(movie_id, movie_poster)
+            movie_counts += 1
             time.sleep(2)
         else:
             continue
+
+    print(f'Posters for {movie_counts} Movies\nExtracted On: {year:04d}-{month:02d}-{day:02d}\nTime: {hour:02d}:{minute:02d}:{second:02d}\n')
