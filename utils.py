@@ -20,7 +20,7 @@ def clean_movie_name_for_api(movie_name: str) -> str:
     """
 
     if len(movie_name) > 5 and movie_name[-5] == '-' and movie_name[-4:].isdigit():
-        return movie_name[-5:]
+        return movie_name[:-5]
     
     return movie_name
 
@@ -43,7 +43,7 @@ def get_datetime_info() -> Dict:
         'month': datetime_info.month,
         'day': datetime_info.day,
         'hour': datetime_info.hour,
-        'minut': datetime_info.minute,
+        'minute': datetime_info.minute,
         'second': datetime_info.second,
     }
 
