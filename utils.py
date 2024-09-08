@@ -25,19 +25,24 @@ def clean_movie_name_for_api(movie_name: str) -> str:
     return movie_name
 
 
-def get_datetime_info() -> Dict:
+def get_datetime_info(compatible_with_db = False) -> Dict | str:
     """
     Getting Current Datetime Info
-
+    return as dictionary if compatible_with_db is False
+    and return strftime if True
+    
     Args:
-        None
+        compatible_with_db: bool
 
     Returns:
-        Dict
+        Dict | str
     """
 
     datetime_info = datetime.now()
 
+    if compatible_with_db:
+        return datetime_info.strftime('%Y-%m-%d %H:%M:%S')
+    
     return {
         'year': datetime_info.year,
         'month': datetime_info.month,
