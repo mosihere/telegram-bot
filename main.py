@@ -62,9 +62,7 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     
     # Get DateTime Info
     datetime_info = get_datetime_info()
-    print(datetime_info)
     year = datetime_info.get('year')
-    print(year)
     month = datetime_info.get('month')
     day = datetime_info.get('day')
     hour = datetime_info.get('hour')
