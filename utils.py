@@ -1,6 +1,6 @@
+import re
 from typing import Dict
 from datetime import datetime
-
 
 
 MOVIE_INFO_URL = 'https://www.omdbapi.com'
@@ -8,6 +8,16 @@ BASE_URL = 'https://www.f2mex.ir'
 
 
 def get_datetime_info() -> Dict:
+    """
+    Getting Current Datetime Info
+
+    Args:
+        None
+
+    Returns:
+        Dict
+    """
+
     datetime_info = datetime.now()
 
     return {
