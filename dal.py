@@ -6,12 +6,9 @@ import requests
 import mysql.connector
 from typing import List, Dict
 from tabulate import tabulate
-from datetime import datetime
 from mysql.connector import errorcode
+from utils import BASE_URL, MOVIE_INFO_URL, find_movie_quality, find_series_season, get_datetime_info
 
-
-BASE_URL = "https://www.f2mex.ir"
-MOVIE_INFO_URL = 'https://www.omdbapi.com'
 
 
 def connect_to_database():
@@ -425,37 +422,6 @@ def movie_data_normalizer(movies: List[Dict]) -> List[Dict]:
     return data
 
 
-def find_movie_quality(link: list) -> list:
-    """
-    Get a single arg as link
-    find and return list of quality .
-
-    Args:
-        link: list
-
-    Returns:
-        list
-    """
-
-    quality = re.findall(r'[0-9]{3,4}[p]',link)
-    return quality
-
-
-def find_series_season(link: list):
-    """
-    Get a single arg as link
-    find and return list of season numbers.
-
-    Args:
-        link: list
-
-    Returns:
-        list
-    """
-    season = re.findall(r'S\d{2}', link)
-    return season
-
-
 def get_movies_from_db() -> List[tuple]:
     """
     Read records from Database 
@@ -527,13 +493,14 @@ def movie_links_endpoint(movie_id: int) -> dict:
 
 
 if __name__ == '__main__':
-    datetime_info = datetime.now()
-    year = datetime_info.year
-    month = datetime_info.month
-    day = datetime_info.day
-    hour = datetime_info.hour
-    minute = datetime_info.minute
-    second = datetime_info.second
+    datetime_info = get_datetime_info()
+
+    year = datetime_info.get('year')
+    month = datetime_info.get('month')
+    day = datetime_info.get('day')
+    hour = datetime_info.get('hour')
+    minute = datetime_info.get('minute')
+    second = datetime_info.get('second')
 
     movies = get_movies_from_db()
 
