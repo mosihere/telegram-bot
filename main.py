@@ -2,6 +2,7 @@ import re
 import os
 import logging
 from datetime import datetime
+from utils import get_datetime_info, clean_movie_name_for_api
 from dal import movie_data_normalizer, movie_links_endpoint, movie_endpoint, get_movie_imdb_info, normalized_imdb_info, user_data_log
 from telegram import Update, InlineQueryResultArticle, InputTextMessageContent, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters, InlineQueryHandler, CallbackQueryHandler
@@ -60,13 +61,15 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     user = inline_query.from_user
     
     # Get DateTime Info
-    datetime_info = datetime.now()
-    year = datetime_info.year
-    month = datetime_info.month
-    day = datetime_info.day
-    hour = datetime_info.hour
-    minute = datetime_info.minute
-    second = datetime_info.second
+    datetime_info = get_datetime_info()
+    print(datetime_info)
+    year = datetime_info.get('year')
+    print(year)
+    month = datetime_info.get('month')
+    day = datetime_info.get('day')
+    hour = datetime_info.get('hour')
+    minute = datetime_info.get('minute')
+    second = datetime_info.get('second')
 
     user_data = (
         f"Query ID: {inline_query.id}\n"
@@ -93,7 +96,8 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     elif data.startswith("info:"):
         final_result = list()
         movie_name = data.split(":")[1]
-        movie_info = get_movie_imdb_info(movie_name, API_KEY)
+        cleaned_movie_name = clean_movie_name_for_api(movie_name)
+        movie_info = get_movie_imdb_info(cleaned_movie_name, API_KEY)
         result = normalized_imdb_info(movie_info)
         
         for key, value in result.items():
