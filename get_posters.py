@@ -1,17 +1,18 @@
 import time
 import sys
-from datetime import datetime
+from utils import get_datetime_info
 from dal import get_movies_from_db, get_movie_poster_url, set_movie_poster, get_movie_from_db_by_id
 
 
 
-datetime_info = datetime.now()
-year = datetime_info.year
-month = datetime_info.month
-day = datetime_info.day
-hour = datetime_info.hour
-minute = datetime_info.minute
-second = datetime_info.second
+datetime_info = get_datetime_info()
+
+year = datetime_info.get('year')
+month = datetime_info.get('month')
+day = datetime_info.get('day')
+hour = datetime_info.get('hour')
+minute = datetime_info.get('minute')
+second = datetime_info.get('second')
 
 if len(sys.argv) > 1:
     movie_id = sys.argv[1]
