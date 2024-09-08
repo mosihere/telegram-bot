@@ -78,20 +78,65 @@ def update_last_movie_id(movie_id: str) -> str:
     return movie_id
 
 
-def user_data_log(data: tuple) -> bool:
+def create_user_record(data: tuple) -> None:
     """
-    Append user data in a logfile named: user_data.log
+    Creating User record
+    get user info from start command and populate database
+
+    Args:
+        data: tuple (user info)
+    
+    Returns:
+        None
     """
 
+    sql_command = """
+            INSERT INTO movies_user (
+                telegram_id, username, first_name, last_name, created_at
+            )
+            VALUES (%s, %s, %s, %s, %s)
+            """
     try:
-        with open('user_data.log', 'a') as file:
-            file.write(f'{data}\n')
-            return True
-        
-    except IOError as e:
-        print(f"An error occurred while writing to the file: {e}")
-        return False
+        cnx = connect_to_database()
+        cursor = cnx.cursor()
+        cursor.execute(sql_command, data)
+        cnx.commit()
+        cursor.close()
+        cnx.close()
+    
+    except mysql.connector.Error as err:
+        print(f'Something failed: {err}')
 
+
+def create_user_search_record(data: tuple) -> None:
+    """
+    Creating User searcg record
+    get user search detail from inline-query search and populate database
+
+    Args:
+        data: tuple (user search info)
+    
+    Returns:
+        None
+    """
+
+    sql_command = """
+            INSERT INTO movies_usersearch (
+                query, timestamp, user_id
+            )
+            VALUES (%s, %s, %s)
+            """
+    try:
+        cnx = connect_to_database()
+        cursor = cnx.cursor()
+        cursor.execute(sql_command, data)
+        cnx.commit()
+        cursor.close()
+        cnx.close()
+    
+    except mysql.connector.Error as err:
+        print(f'Something failed: {err}')
+    
 
 def get_movie_imdb_info(movie: str, api_key: str) -> Dict:
     response = requests.get(f'{MOVIE_INFO_URL}/?t={movie}&apikey={api_key}')
@@ -456,6 +501,27 @@ def get_movie_from_db_by_id(movie_id: str) -> tuple | None:
     cursor.close()
     conx.close()
     return movie
+
+
+def get_user_from_db_by_telegram_id(telegram_id: str) -> tuple | None:
+    """
+    Read User information by TelegramID
+
+    Returns:
+        Tuple | None
+    """
+
+    sql_command = f""" SELECT id FROM movies_user WHERE telegram_id = %s"""
+    conx = connect_to_database()
+    cursor = conx.cursor()
+    cursor.execute(sql_command, (telegram_id, ))
+    user = cursor.fetchone()
+    cursor.close()
+    conx.close()
+    if user:
+        return user[0]
+    
+    return None
 
 
 async def movie_endpoint(name: str) -> dict:
