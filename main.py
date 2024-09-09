@@ -2,7 +2,7 @@ import re
 import os
 import logging
 from utils import get_datetime_info, clean_movie_name_for_api
-from dal import movie_data_normalizer, movie_links_endpoint, movie_endpoint, get_movie_imdb_info, normalized_imdb_info, create_user_record, create_user_search_record, get_user_from_db_by_telegram_id
+from dal import movie_data_normalizer, movie_links_endpoint, movie_endpoint, get_movie_imdb_info, normalized_imdb_info, create_user_record, create_user_search_record, get_user_from_db_by_telegram_id, update_user_last_use
 from telegram import Update, InlineQueryResultArticle, InputTextMessageContent, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters, InlineQueryHandler, CallbackQueryHandler
 
@@ -26,13 +26,19 @@ logger = logging.getLogger(__name__)
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
     telegram_id = user.id
-    username = user.username
-    first_name = user.first_name
-    last_name = user.last_name
-    created_at = get_datetime_info(compatible_with_db=True)
+    datetime_info = get_datetime_info(compatible_with_db=True)
 
-    user_data = (telegram_id, username, first_name, last_name, created_at)
-    create_user_record(user_data)
+    if user_id:= get_user_from_db_by_telegram_id(telegram_id):
+        update_user_last_use(datetime_info, user_id)
+    
+    else:
+        username = user.username
+        first_name = user.first_name
+        last_name = user.last_name
+        last_use = datetime_info
+
+        user_data = (telegram_id, username, first_name, last_name, datetime_info, last_use)
+        create_user_record(user_data)
 
     await update.message.reply_text('🎥 چه فیلمی میخوای\n\n🔍آیدی بات رو منشن کن و جلوش سرچ کن تا نتایج جست و جو رو ببینی\n\n💪حتی تو گروه و پی وی دیگران هم میتونی اینکار رو انجام بدی :)\n\nاینشکلی:\n\n@shodambot friends✅')
 
@@ -73,6 +79,10 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 
     # Get DateTime Info
     datetime_info = get_datetime_info(compatible_with_db=True)
+
+    if user_id:
+        update_user_last_use(datetime_info, user_id)
+
     user_search_data = (user_query, datetime_info, user_id)
 
     create_user_search_record(user_search_data)
