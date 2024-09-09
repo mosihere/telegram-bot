@@ -265,11 +265,7 @@ def create_record_for_movie_links(val: tuple) -> int | str:
         int | str(Error)
     """
 
-    tabular_titles = ['Link', 'Quality / Season', 'ID', 'Codec']
-
     try:
-        print(tabulate(tabular_data=[tabular_titles, val]))
-        print()
         sql_command = """
             INSERT INTO movies_link (
                 link, quality, movie_id, codec
@@ -358,7 +354,6 @@ def get_movie_data(record: tuple) -> bool:
 
     id = record[0]
     url = record[2]
-    print('\n++ Extracted Movie URLs ++\n')
 
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
     response = requests.get(url, headers=headers)
@@ -396,7 +391,6 @@ def get_series_data(record: tuple) -> None:
 
     id = record[0]
     url = record[2]
-    print('\n++ Extracted Series URLs ++\n')
 
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
     response = requests.get(url, headers=headers)
