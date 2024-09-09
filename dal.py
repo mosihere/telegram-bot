@@ -92,9 +92,9 @@ def create_user_record(data: tuple) -> None:
 
     sql_command = """
             INSERT INTO movies_user (
-                telegram_id, username, first_name, last_name, created_at
+                telegram_id, username, first_name, last_name, created_at, last_use
             )
-            VALUES (%s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s, %s)
             """
     try:
         cnx = connect_to_database()
@@ -489,6 +489,9 @@ def get_movie_from_db_by_id(movie_id: str) -> tuple | None:
     """
     Read Movie information by ID
 
+    Args:
+        movie_id: str
+
     Returns:
         Tuple | None
     """
@@ -522,6 +525,32 @@ def get_user_from_db_by_telegram_id(telegram_id: str) -> tuple | None:
         return user[0]
     
     return None
+
+
+def update_user_last_use(datetime_info: str, user_id: int) -> None:
+    """
+    Update last_use field of User Record based on ID of user in database
+    Whenever User Search in Bot or Start the Bot.
+
+    Args:
+        datetime_info: strftime
+        user_id: int
+
+    Returns:
+        None
+    """
+
+    sql_command = f"""
+            UPDATE movies_user
+            SET last_use = %s
+            WHERE id = %s
+            """
+    conx = connect_to_database()
+    cursor = conx.cursor()
+    cursor.execute(sql_command, (datetime_info, user_id))
+    conx.commit()
+    cursor.close()
+    conx.close()
 
 
 async def movie_endpoint(name: str) -> dict:
