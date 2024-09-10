@@ -27,12 +27,12 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
     telegram_id = user.id
     datetime_info = get_datetime_info(compatible_with_db=True)
+    username = user.username
 
     if user_id:= get_user_from_db_by_telegram_id(telegram_id):
         update_user_last_use(datetime_info, user_id)
     
     else:
-        username = user.username
         first_name = user.first_name
         last_name = user.last_name
         last_use = datetime_info
@@ -40,7 +40,35 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         user_data = (telegram_id, username, first_name, last_name, datetime_info, last_use)
         create_user_record(user_data)
 
-    await update.message.reply_text('🎥 چه فیلمی میخوای\n\n🔍آیدی بات رو منشن کن و جلوش سرچ کن تا نتایج جست و جو رو ببینی\n\n💪حتی تو گروه و پی وی دیگران هم میتونی اینکار رو انجام بدی :)\n\nاینشکلی:\n\n@shodambot friends✅')
+    if username:
+        await update.message.reply_text(
+            f"""
+                سلام  {username} عزیز 🎬
+
+👋 خوش اومدی به ربات دانلود فیلم و سریال 🎥
+
+✨ فقط کافیه اسم فیلم یا سریال مورد نظرت رو بصورت تایپ کنی تا نتایج رو ببینی
+
+@shodambot enemy
+
+📲 حتی میتوتی به همین روش، توی گروه‌ها و چت خصوصی هم از ربات استفاده کنی! 
+@shodambot friends
+            """
+)
+    else:
+        await update.message.reply_text(
+            """
+                سلام دوست من 🎬
+👋 خوش اومدی به ربات دانلود فیلم و سریال 🎥
+
+✨ فقط کافیه اسم فیلم یا سریال مورد نظرت رو بصورت تایپ کنی تا نتایج رو ببینی
+
+@shodambot enemy
+
+📲 حتی میتوتی به همین روش، توی گروه‌ها و چت خصوصی هم از ربات استفاده کنی! 
+@shodambot friends
+            """
+)
 
 
 async def movie_info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
