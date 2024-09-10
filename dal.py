@@ -358,6 +358,7 @@ def get_movie_data(record: tuple) -> bool:
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
     response = requests.get(url, headers=headers)
     links = re.findall(r'https://.*kingupload.*(?:mp4|mkv)', response.text)
+    records_to_insert = list()
 
     if not links:
         return False
@@ -370,8 +371,9 @@ def get_movie_data(record: tuple) -> bool:
         quality = quality[0]
         codec = 'x265' if 'x265' in link else 'x264'
         data = (link, quality, id, codec)
-        create_record_for_movie_links(data)
+        records_to_insert.append(data)
         time.sleep(2)
+    create_record_for_movie_links(records_to_insert)
     return True
 
 
