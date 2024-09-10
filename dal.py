@@ -252,14 +252,14 @@ def create_record_for_movies(val: list[tuple], has_published_date: bool = False)
         return f'We faced an error: {err}'
 
 
-def create_record_for_movie_links(val: tuple) -> int | str:
+def create_record_for_movie_links(records: List[tuple]) -> int | str:
     """
-    Get a single arg as val
-    try to insert a value to database with specified query and return lastrowid
+    Get a single arg as records
+    try to insert a list of records to database with specified query and return lastrowid
     in case of exception returns error message as string.
 
     Args:
-        val: tuple
+        records: List[tuple]
 
     Returns:
         int | str(Error)
@@ -273,10 +273,10 @@ def create_record_for_movie_links(val: tuple) -> int | str:
             VALUES (%s, %s, %s, %s) """
         cnx = connect_to_database()
         cursor = cnx.cursor()
-        cursor.execute(sql_command, val)
+        cursor.executemany(sql_command, records)
         cnx.commit()
         cnx.close()
-        return cursor.lastrowid
+        return cursor.rowcount
     
     except mysql.connector.Error as err:
         return f'We faced an error: {err}'
@@ -396,6 +396,7 @@ def get_series_data(record: tuple) -> None:
     response = requests.get(url, headers=headers)
     links_page = re.findall(r'https://.*kingupload.*/Serial/.*[0-9]/', response.text)
     new_links_page = re.findall(r'https://.*kingupload.*/Series/.*[0-9]/', response.text)
+    records_to_insert = list()
 
     if links_page:
         links_page = list(set(links_page))
@@ -410,9 +411,9 @@ def get_series_data(record: tuple) -> None:
             season = season[0]
             codec = 'x265' if 'x265' in serial_link else 'x264'
             data = (serial_link, season, id, codec)
-            create_record_for_movie_links(data)
+            records_to_insert.append(data)
             time.sleep(2)
-        return
+        create_record_for_movie_links(records_to_insert)
             
     elif new_links_page:
         new_links_page = list(set(new_links_page))
@@ -427,10 +428,9 @@ def get_series_data(record: tuple) -> None:
             season = season[0]
             codec = 'x265' if 'x265' in series_link else 'x264'
             data = (series_link, season, id, codec)
-            create_record_for_movie_links(data)
+            records_to_insert.append(data)
             time.sleep(2)
-        return
-    return
+        create_record_for_movie_links(records_to_insert)
 
 
 def movie_data_normalizer(movies: List[Dict]) -> List[Dict]:
