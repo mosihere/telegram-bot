@@ -36,6 +36,7 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         movie_id = sys.argv[1]
         extract_movie_links(movie_id)
+        print(f'Links of Movie {movie_id} Extracted On {year:04d}-{month:02d}-{day:02d}\nTime: {hour:02d}:{minute:02d}:{second:02d}\n')
 
     else:
         movies = get_movies_from_db()
