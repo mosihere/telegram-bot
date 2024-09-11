@@ -267,7 +267,7 @@ def create_record_for_movie_links(records: List[tuple]) -> int | str:
 
     try:
         sql_command = """
-            INSERT INTO movies_link (
+            INSERT IGNORE INTO movies_link (
                 link, quality, movie_id, codec
             )
             VALUES (%s, %s, %s, %s) """
