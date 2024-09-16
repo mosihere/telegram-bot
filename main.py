@@ -99,27 +99,25 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     
     # Get User Info
     inline_query = update.inline_query
-    telegram_user_id = inline_query.from_user.id
-    user_query = inline_query.query
-
-    user_id = get_user_from_db_by_telegram_id(telegram_user_id)
+    user_object = inline_query.from_user
+    telegram_user_id = user_object.id
+    database_user_id = get_user_from_db_by_telegram_id(telegram_user_id)
+    
     # Get DateTime Info
     datetime_info = get_datetime_info(compatible_with_db=True)
 
-    if user_id:
-        update_user_last_use(datetime_info, user_id)
+    if database_user_id:
+        update_user_last_use(datetime_info, database_user_id)
 
     else:
-        user = inline_query.from_user
-        telegram_id = user.id
-        username = user.username
-        first_name = user.first_name
-        last_name = user.last_name
+        username = user_object.username
+        first_name = user_object.first_name
+        last_name = user_object.last_name
         last_use = datetime_info
-        user_data = (telegram_id, username, first_name, last_name, datetime_info, last_use)
-        user_id = create_user_record(user_data)
+        user_data = (telegram_user_id, username, first_name, last_name, datetime_info, last_use)
+        database_user_id = create_user_record(user_data)
 
-    user_search_data = (user_query, datetime_info, user_id)
+    user_search_data = (query, datetime_info, database_user_id)
     create_user_search_record(user_search_data)
 
     await update.inline_query.answer(inline_options)

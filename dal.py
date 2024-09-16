@@ -78,7 +78,7 @@ def update_last_movie_id(movie_id: str) -> str:
     return movie_id
 
 
-def create_user_record(data: tuple) -> None:
+def create_user_record(data: tuple) -> int:
     """
     Creating User record
     get user info from start command and populate database
@@ -87,7 +87,7 @@ def create_user_record(data: tuple) -> None:
         data: tuple (user info)
     
     Returns:
-        None
+        int: last row ID
     """
 
     sql_command = """
@@ -103,6 +103,7 @@ def create_user_record(data: tuple) -> None:
         cnx.commit()
         cursor.close()
         cnx.close()
+        return cursor.lastrowid
     
     except mysql.connector.Error as err:
         print(f'Something failed: {err}')
