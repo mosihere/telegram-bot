@@ -5,7 +5,9 @@ from datetime import datetime
 
 MOVIE_INFO_URL = 'https://www.omdbapi.com'
 BASE_URL = 'https://www.f2mex.ir'
-
+SUBTITLE_URL = 'https://subtitlestar.com/'
+PERSIAN_PREFIX = 'زیرنویس-فارسی-'
+ENGLISH_PREFIX = 'persian-subtitles-'
 
 
 def clean_movie_name_for_api(movie_name: str) -> str:
