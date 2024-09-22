@@ -5,9 +5,8 @@ import aiohttp
 import requests
 import mysql.connector
 from typing import List, Dict
-from tabulate import tabulate
 from mysql.connector import errorcode
-from utils import BASE_URL, MOVIE_INFO_URL, find_movie_quality, find_series_season, get_datetime_info
+from utils import BASE_URL, MOVIE_INFO_URL, find_movie_quality, find_series_season, SUBTITLE_URL, ENGLISH_PREFIX, PERSIAN_PREFIX
 
 
 
@@ -311,6 +310,66 @@ def get_movie_poster_url(record: tuple) -> tuple | None:
         return poster_url, movie_id
 
     return None
+
+
+def get_movie_subtitle(record: tuple) -> tuple | None:
+    """
+    Get a single argument as record
+    Unpack result and assign them to variables
+    send a get request to given URL
+    find movie subtitle
+    return that subtitle_url
+
+    Args:
+        record: tuple
+    
+    Returns:
+        tuple(str, str) | None
+    """
+    movie_id = record[0]
+    movie_title = record[1]
+    url = fr'{SUBTITLE_URL}{ENGLISH_PREFIX}{movie_title}'
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
+    session = requests.Session()
+    response = session.get(f'{url}', headers=headers)
+    pattern = r'https:\/\/dl\.subtitlestar\.com\/dlsub\/[a-zA-Z0-9-]+-[a-zA-Z0-9-]+\.zip'
+    match = re.search(pattern, response.text)
+
+    if match:
+        return match.group(0), movie_id
+    else:
+        url = fr'{SUBTITLE_URL}{PERSIAN_PREFIX}{movie_title}'
+        response = session.get(f'{url}', headers=headers)
+        match = re.search(pattern, response.text)
+        if match:
+            return match.group(0), movie_id
+        else:
+            return None
+
+
+def set_movie_subtitle(subtitle_url: str, movie_id: str) -> None:
+    """
+    UPDATE movies_movie table
+    SET subtitle_url for record
+
+    Args:
+        subtitle_url: str
+        movie_id: str
+
+    Returns:
+        None
+    """
+
+    sql_command = """
+            UPDATE movies_movie
+            SET subtitle_url = %s
+            WHERE id = %s
+            """
+    conx = connect_to_database()
+    cursor = conx.cursor()
+    cursor.execute(sql_command, (subtitle_url, movie_id))
+    conx.commit()
+    conx.close()
 
 
 def set_movie_poster(movie_id: str, poster_url: str) -> None:
