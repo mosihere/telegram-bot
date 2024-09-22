@@ -338,6 +338,7 @@ def get_movie_subtitle(record: tuple) -> tuple | None:
     if match:
         return match.group(0), movie_id
     else:
+        time.sleep(1.5)
         url = fr'{SUBTITLE_URL}{PERSIAN_PREFIX}{movie_title}'
         response = session.get(f'{url}', headers=headers)
         match = re.search(pattern, response.text)
