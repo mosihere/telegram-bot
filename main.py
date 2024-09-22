@@ -47,7 +47,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 👋 خوش اومدی به ربات دانلود فیلم و سریال 🎥
 
-✨ فقط کافیه اسم فیلم یا سریال مورد نظرت رو بصورت تایپ کنی تا نتایج رو ببینی
+✨ فقط کافیه اسم فیلم یا سریال مورد نظرت رو اینگیلیسی تایپ کنی تا نتایج رو ببینی
 
 @shodambot enemy
 
@@ -60,7 +60,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 سلام دوست من 🎬
 👋 خوش اومدی به ربات دانلود فیلم و سریال 🎥
 
-✨ فقط کافیه اسم فیلم یا سریال مورد نظرت رو بصورت تایپ کنی تا نتایج رو ببینی
+✨ فقط کافیه اسم فیلم یا سریال مورد نظرت رو اینگیلیسی تایپ کنی تا نتایج رو ببینی
 
 @shodambot enemy
 
@@ -130,7 +130,7 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if data.startswith("links:"):
         movie_id = data.split(":")[1]
         response = handle_response(movie_id)
-        await query.edit_message_text(text=response, parse_mode='Html')
+        await query.edit_message_text(text=response, parse_mode='HTML')
 
     elif data.startswith("info:"):
         final_result = list()
@@ -158,13 +158,14 @@ def handle_response(movie_id: str) -> str:
         return 'هنوز این فیلم رو نداریم :('
     movie_name = normalized_data[0].get('name')
     published_date = normalized_data[0].get('published_at')
+    subtitle_url = normalized_data[0].get('subtitle_url')
 
     season_episode_pattern = re.compile(r'[sS]\d{2}[eE]\d{2}')
     collection_pattern = re.compile(r'([^/]+?\.\d{4})|([^/]+\.\d{4}\.\d{4})')
 
     movie_data_list = []
     for movie in normalized_data:
-        movie_data_list.append('✔️' + movie.get('quality_and_codec'))
+        movie_data_list.append(f"<b>✔️ {movie.get('quality_and_codec')}</b>")
         raw_link = movie.get('link')
         is_collection = re.search('[cC]ollection', raw_link)
         get_season_episode = season_episode_pattern.search(raw_link)
@@ -189,14 +190,14 @@ def handle_response(movie_id: str) -> str:
             movie_data_list.append(html_link)
 
     if published_date:
-        movie_data_list.insert(0, f'🍿{movie_name}\n\n📆 {published_date}\n\n')
-        movie_data_list.insert(0, '🎞️ کیفیت های مختلف 🎞️\n\n')
-        movie_data_list.insert(0, f'❗️برای دانلود VPN خود را خاموش کنید❗️\n\n')
+        movie_data_list.insert(0, f'🔗 <a href="{subtitle_url}">Subtitle</a>\n')
+        movie_data_list.insert(0, f'<b>🍿{movie_name}</b>\n<b>📆 {published_date}</b>\n')
+        movie_data_list.insert(0, f'❗️برای دانلود VPN خود را خاموش کنید❗️\n')
 
     else:
-        movie_data_list.insert(0, f'🍿{movie_name}\n\n')
-        movie_data_list.insert(0, '🎞️ کیفیت های مختلف 🎞️\n\n')
-        movie_data_list.insert(0, f'❗️برای دانلود VPN خود را خاموش کنید❗️\n\n')
+        movie_data_list.insert(0, f'🔗 <a href="{subtitle_url}">Subtitle</a>\n')
+        movie_data_list.insert(0, f'<b>🍿{movie_name}</b>\n')
+        movie_data_list.insert(0, f'❗️برای دانلود VPN خود را خاموش کنید❗️\n')
 
     return f'\n----------------------------------\n'.join(movie_data_list)
 
