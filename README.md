@@ -14,6 +14,7 @@ A telegram bot created using Python -> Python-telegram-bot library
 8. Inline-Query Search
 9. Get Movie Informations such as IMDB rating, Plot, Director and ...
 10. Movie Posters Added.
+11. Persian Subtitle Added.
 
 ## Sample
 
