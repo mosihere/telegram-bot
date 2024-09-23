@@ -1,24 +1,14 @@
 import re
 import os
 import logging
-from utils import get_datetime_info, clean_movie_name_for_api
+from bot_instance import bot
+from utils import get_datetime_info, clean_movie_name_for_api, API_KEY, BOT_USERNAME
 from dal import movie_data_normalizer, movie_links_endpoint, movie_endpoint, get_movie_imdb_info, normalized_imdb_info, create_user_record, create_user_search_record, get_user_from_db_by_telegram_id, update_user_last_use
 from telegram import Update, InlineQueryResultArticle, InputTextMessageContent, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters, InlineQueryHandler, CallbackQueryHandler
 
-TOKEN = os.environ.get('BOT_TOKEN')
-API_KEY = os.environ.get('API_KEY')
-BOT_USERNAME = '@shodambot'
 
 
-# Enable logging
-logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
-)
-# set higher logging level for httpx to avoid all GET and POST requests being logged
-logging.getLogger("httpx").setLevel(logging.WARNING)
-
-logger = logging.getLogger(__name__)
 
 
 # Commands
@@ -159,7 +149,6 @@ def handle_response(movie_id: str) -> str:
     movie_name = normalized_data[0].get('name')
     published_date = normalized_data[0].get('published_at')
     subtitle_url = normalized_data[0].get('subtitle_url')
-
     season_episode_pattern = re.compile(r'[sS]\d{2}[eE]\d{2}')
     collection_pattern = re.compile(r'([^/]+?\.\d{4})|([^/]+\.\d{4}\.\d{4})')
 
@@ -209,22 +198,20 @@ async def error(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 if __name__ == '__main__':
 
-    app = Application.builder().token(TOKEN).build()
-
     # Commands
-    app.add_handler(CommandHandler('start', start))
-    app.add_handler(CommandHandler('getinfo', movie_info))
+    bot.add_handler(CommandHandler('start', start))
+    bot.add_handler(CommandHandler('getinfo', movie_info))
 
     # Messages
     # app.add_handler(MessageHandler(filters.TEXT, handle_message))
 
     # on inline queries - show corresponding inline results
-    app.add_handler(InlineQueryHandler(inline_query))
-    app.add_handler(CallbackQueryHandler(button))
+    bot.add_handler(InlineQueryHandler(inline_query))
+    bot.add_handler(CallbackQueryHandler(button))
 
     # Errors
-    app.add_error_handler(error)
+    bot.add_error_handler(error)
 
     # Polls the bot
     print('Bot is up and running...')
-    app.run_polling(timeout=20)
+    bot.run_polling(timeout=20)
