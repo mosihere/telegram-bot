@@ -564,6 +564,24 @@ def get_movie_from_db_by_id(movie_id: str) -> tuple | None:
     return movie
 
 
+def get_all_users_telegram_ids() -> tuple | None:
+    """
+    Get Users TelegramID
+
+    Returns:
+        Tuple | None
+    """
+
+    sql_command = """ SELECT telegram_id FROM movies_user where id = 119"""
+    conx = connect_to_database()
+    cursor = conx.cursor()
+    cursor.execute(sql_command)
+    users = cursor.fetchall()
+    cursor.close()
+    conx.close()
+    return users
+
+
 def get_user_from_db_by_telegram_id(telegram_id: str) -> tuple | None:
     """
     Read User information by TelegramID
