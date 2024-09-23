@@ -572,7 +572,7 @@ def get_all_users_telegram_ids() -> tuple | None:
         Tuple | None
     """
 
-    sql_command = """ SELECT telegram_id FROM movies_user where id = 119"""
+    sql_command = """ SELECT telegram_id FROM movies_user"""
     conx = connect_to_database()
     cursor = conx.cursor()
     cursor.execute(sql_command)
