@@ -1,4 +1,5 @@
 import re
+import os
 from typing import Dict
 from datetime import datetime
 
@@ -8,6 +9,8 @@ BASE_URL = 'https://www.f2mex.ir'
 SUBTITLE_URL = 'https://subtitlestar.com/'
 PERSIAN_PREFIX = 'زیرنویس-فارسی-'
 ENGLISH_PREFIX = 'persian-subtitles-'
+API_KEY = os.environ.get('API_KEY')
+BOT_USERNAME = '@shodambot'
 
 
 def clean_movie_name_for_api(movie_name: str) -> str:
