@@ -136,7 +136,35 @@ def create_user_search_record(data: tuple) -> None:
     
     except mysql.connector.Error as err:
         print(f'Something failed: {err}')
+
+
+def remove_user_from_db(telegram_id: str, user_database_id: str) -> None:
+    """
+    Delete Both User and User-Records of Someone Who Blocks Bot.
+
+    Args:
+        telegram_id: str
+        user_database_id: str
     
+    Returns:
+        None
+    """
+
+    sql_command_user_search = """ DELETE FROM movies_usersearch WHERE user_id = %s """
+    sql_command_user = """ DELETE FROM movies_user WHERE telegram_id = %s """
+
+    try:
+        cnx = connect_to_database()
+        cursor = cnx.cursor()
+        cursor.execute(sql_command_user_search, (user_database_id, ))
+        cursor.execute(sql_command_user, (telegram_id, ))
+        cnx.commit()
+        cursor.close()
+        cnx.close()
+    
+    except mysql.connector.Error as err:
+        print(f'Something failed: {err}')
+
 
 def get_movie_imdb_info(movie: str, api_key: str) -> Dict:
     response = requests.get(f'{MOVIE_INFO_URL}/?t={movie}&apikey={api_key}')
@@ -572,7 +600,7 @@ def get_all_users_telegram_ids() -> tuple | None:
         Tuple | None
     """
 
-    sql_command = """ SELECT telegram_id FROM movies_user"""
+    sql_command = """ SELECT telegram_id, id FROM movies_user """
     conx = connect_to_database()
     cursor = conx.cursor()
     cursor.execute(sql_command)
