@@ -120,7 +120,7 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if data.startswith("links:"):
         movie_id = data.split(":")[1]
         response = handle_response(movie_id)
-        await query.edit_message_text(text=response, parse_mode='HTML')
+        await context.bot.send_message(chat_id=query.from_user.id, text=response, parse_mode='HTML')
 
     elif data.startswith("info:"):
         final_result = list()
@@ -132,7 +132,7 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         for key, value in result.items():
             final_result.append(f'{key}: {value}')
         
-        await query.edit_message_text('\n\n'.join(final_result))
+        await context.bot.send_message(chat_id=query.from_user.id, text='\n\n'.join(final_result))
 
 
 async def search_movie(title: str):
