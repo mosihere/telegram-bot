@@ -660,13 +660,12 @@ def get_trending_movies(authorization: str) -> dict:
         return {"error": "Unable to fetch trending movies"}
 
 
-def suggest_trending_movies() -> tuple | None:
+def suggest_trending_movies() -> List[tuple] | None:
     """
     Select all trends movies from Database
-    Return 5 of them randomly
 
     Returns:
-
+        List(Tuple): Movie Records | None
     """
     
     sql_command = """ SELECT * FROM movies_movie WHERE trending = 1 """
@@ -679,12 +678,12 @@ def suggest_trending_movies() -> tuple | None:
     return movies
 
 
-def get_all_users_telegram_ids() -> tuple | None:
+def get_all_users_telegram_ids() -> List[tuple] | None:
     """
     Get Users TelegramID
 
     Returns:
-        Tuple | None
+        List[Tuple]: Users Info | None
     """
 
     sql_command = """ SELECT telegram_id, id FROM movies_user """
@@ -761,17 +760,18 @@ async def movie_endpoint(name: str) -> dict:
             return await response.json()
 
 
-def movie_links_endpoint(movie_id: int) -> dict:
+async def movie_links_endpoint(movie_id: int) -> dict:
     """
     Get a single arg as name
     send a request to specified endpoint and set name parameter as query_string
     
     Args:
-        name: str
+        movie_id: int
 
     Returns:
         Dict
     """
-
-    response = requests.get(f'http://127.0.0.1:8000/api/links/?movie_id={movie_id}')
-    return response.json()
+    
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f'http://127.0.0.1:8000/api/links/?movie_id={movie_id}') as response:
+            return await response.json()
