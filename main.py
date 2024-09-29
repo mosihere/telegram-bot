@@ -119,12 +119,21 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     if data.startswith("trending_links:"):
         movie_id = data.split(":")[1]
-        response = handle_response(movie_id)
+        response = await handle_response(movie_id)
         await context.bot.send_message(chat_id=query.from_user.id, text=response, parse_mode='HTML')
+
+        # Get User Info
+        user_object = query.from_user
+        telegram_user_id = user_object.id
+        database_user_id = get_user_from_db_by_telegram_id(telegram_user_id)
+
+        # Get DateTime Info
+        datetime_info = get_datetime_info(compatible_with_db=True)
+        update_user_last_use(datetime_info, database_user_id)
 
     elif data.startswith("links:"):
         movie_id = data.split(":")[1]
-        response = handle_response(movie_id)
+        response = await handle_response(movie_id)
         await context.bot.send_message(chat_id=query.from_user.id, text=response, parse_mode='HTML')
 
     elif data.startswith("info:"):
@@ -146,9 +155,9 @@ async def search_movie(title: str):
 
 
 # Responses
-def handle_response(movie_id: str) -> str:
+async def handle_response(movie_id: str) -> str:
 
-    movie = movie_links_endpoint(movie_id)
+    movie = await movie_links_endpoint(movie_id)
     normalized_data = movie_data_normalizer(movie)
     if not normalized_data:
         return 'هنوز این فیلم رو نداریم :('
