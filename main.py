@@ -117,7 +117,12 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = update.callback_query
     data = query.data
 
-    if data.startswith("links:"):
+    if data.startswith("trending_links:"):
+        movie_id = data.split(":")[1]
+        response = handle_response(movie_id)
+        await context.bot.send_message(chat_id=query.from_user.id, text=response, parse_mode='HTML')
+
+    elif data.startswith("links:"):
         movie_id = data.split(":")[1]
         response = handle_response(movie_id)
         await context.bot.send_message(chat_id=query.from_user.id, text=response, parse_mode='HTML')
@@ -138,6 +143,7 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 async def search_movie(title: str):
     movie = await movie_endpoint(title)
     return movie
+
 
 # Responses
 def handle_response(movie_id: str) -> str:

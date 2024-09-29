@@ -10,24 +10,26 @@ SUBTITLE_URL = 'https://subtitlestar.com/'
 PERSIAN_PREFIX = 'زیرنویس-فارسی-'
 ENGLISH_PREFIX = 'persian-subtitles-'
 API_KEY = os.environ.get('API_KEY')
+TMDB_BEARER_TOKEN = os.environ.get('TMDB_BEARER_TOKEN')
 BOT_USERNAME = '@shodambot'
+
 
 
 def clean_movie_name_for_api(movie_name: str) -> str:
     """
-    Removes the year suffix (e.g., '-2024') from the movie name if present.
+    Removes the year suffix (e.g., '-2024') and replace ( '-' with ' ') from the movie name if present.
 
     Args:
         movie_name: str
     
     Returns:
-        str: Cleaned Movie name without the year suffix.
+        str: Cleaned Movie name without the year suffix and dashes.
     """
 
     if len(movie_name) > 5 and movie_name[-5] == '-' and movie_name[-4:].isdigit():
-        return movie_name[:-5]
+        return movie_name[:-5].replace(' ', '-')
     
-    return movie_name
+    return movie_name.replace(' ', '-')
 
 
 def get_datetime_info(compatible_with_db = False) -> Dict | str:
