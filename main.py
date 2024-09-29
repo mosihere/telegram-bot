@@ -119,7 +119,7 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     if data.startswith("trending_links:"):
         movie_id = data.split(":")[1]
-        response = await handle_response(movie_id)
+        response = handle_response(movie_id)
         await context.bot.send_message(chat_id=query.from_user.id, text=response, parse_mode='HTML')
 
     elif data.startswith("links:"):
