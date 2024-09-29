@@ -6,8 +6,7 @@ import requests
 import mysql.connector
 from typing import List, Dict
 from mysql.connector import errorcode
-from utils import BASE_URL, MOVIE_INFO_URL, find_movie_quality, find_series_season, SUBTITLE_URL, ENGLISH_PREFIX, PERSIAN_PREFIX
-
+from utils import BASE_URL, MOVIE_INFO_URL, find_movie_quality, find_series_season, SUBTITLE_URL, ENGLISH_PREFIX, PERSIAN_PREFIX, TMDB_BEARER_TOKEN
 
 
 def connect_to_database():
@@ -590,6 +589,94 @@ def get_movie_from_db_by_id(movie_id: str) -> tuple | None:
     cursor.close()
     conx.close()
     return movie
+
+
+
+def clear_trending_movie() -> int:
+    """ 
+    Clear All marks from Movies
+    Before Mark new Movies as trending
+
+    Returns:
+        row_count: int (Number of Updated Rows)
+    """
+
+    sql_command = """ UPDATE movies_movie SET trending = 0 WHERE trending = 1 """
+    conx = connect_to_database()
+    cursor = conx.cursor()
+    cursor.execute(sql_command)
+    conx.commit()
+    cursor.close()
+    conx.close()
+    return cursor.rowcount
+
+
+def mark_trending_movie(movie_title: str) -> int:
+    """
+    Get a movie title and Check if that movie exists in Database
+    Mark that Movie as Trending.
+
+    Args:
+        movie_title: str
+
+    Returns:
+        row_count: int (Number of Updated Rows)
+    """
+
+    movie_title = f"%{movie_title}%"
+    sql_command = f""" UPDATE movies_movie SET trending = 1 where name LIKE %s """
+    conx = connect_to_database()
+    cursor = conx.cursor()
+    cursor.execute(sql_command, (movie_title,))
+    conx.commit()
+    cursor.close()
+    conx.close()
+    return cursor.rowcount
+
+
+def get_trending_movies(authorization: str) -> dict:
+    """
+    Get Trends Movies From Third-Party API.
+
+    Args:
+        authorization: str(Token)
+    
+    Returns:
+        Dict
+    """
+
+    url = "https://api.themoviedb.org/3/trending/movie/week?language=en-US"
+
+    headers = {
+        "accept": "application/json",
+        "Authorization": authorization
+    }
+
+    response = requests.get(url, headers=headers)
+
+    if response.status_code == 200:
+        return response.json()['results']
+    else:
+        return {"error": "Unable to fetch trending movies"}
+
+
+def suggest_trending_movies() -> tuple | None:
+    """
+    Select all trends movies from Database
+    Return 5 of them randomly
+
+    Returns:
+
+    """
+    
+    sql_command = """ SELECT * FROM movies_movie WHERE trending = 1 """
+    conx = connect_to_database()
+    cursor = conx.cursor()
+    cursor.execute(sql_command)
+    movies = cursor.fetchall()
+    cursor.close()
+    conx.close()
+    return movies
 
 
 def get_all_users_telegram_ids() -> tuple | None:
