@@ -3,6 +3,7 @@ from bot_instance import bot
 from dal import get_all_users_telegram_ids, remove_user_from_db
 
 
+
 async def send_message_to_all_users(message, reply_markup=None, parse_mode=None):
     user_info = get_all_users_telegram_ids()
     for element in user_info:

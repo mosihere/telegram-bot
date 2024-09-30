@@ -4,8 +4,10 @@ import asyncio
 import aiohttp
 import datetime
 from typing import List
-from utils import BASE_URL
+from constants import BASE_URL
 from dal import is_duplicate, create_record_for_movies
+
+
 
 # Careful! Just run this module when you want crawl movies.
 

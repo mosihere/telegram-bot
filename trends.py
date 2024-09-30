@@ -1,8 +1,9 @@
 import random
 import asyncio
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
+from constants import TMDB_BEARER_TOKEN
 from messengers import send_message_to_all_users
-from utils import TMDB_BEARER_TOKEN, clean_movie_name_for_api, get_datetime_info
+from utils import clean_movie_name_for_api, get_datetime_info
 from dal import get_trending_movies, mark_trending_movie, suggest_trending_movies, clear_trending_movie
 
 

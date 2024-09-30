@@ -1,13 +1,18 @@
 import re
-import os
-import logging
-from bot_instance import bot
-from utils import get_datetime_info, clean_movie_name_for_api, API_KEY, BOT_USERNAME
-from dal import movie_data_normalizer, movie_links_endpoint, movie_endpoint, get_movie_imdb_info, normalized_imdb_info, create_user_record, create_user_search_record, get_user_from_db_by_telegram_id, update_user_last_use
 from telegram import Update, InlineQueryResultArticle, InputTextMessageContent, InlineKeyboardMarkup, InlineKeyboardButton
-from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters, InlineQueryHandler, CallbackQueryHandler
-
-
+from telegram.ext import CommandHandler, ContextTypes, MessageHandler, filters, InlineQueryHandler, CallbackQueryHandler
+from bot_instance import bot
+from constants import API_KEY
+from utils import get_datetime_info, clean_movie_name_for_api, movie_data_normalizer, normalized_imdb_info
+from dal import (
+    movie_links_endpoint,
+    movie_endpoint,
+    get_movie_imdb_info,
+    create_user_record,
+    create_user_search_record,
+    get_user_from_db_by_telegram_id,
+    update_user_last_use
+)
 
 
 
