@@ -6,7 +6,15 @@ import requests
 import mysql.connector
 from typing import List, Dict
 from mysql.connector import errorcode
-from utils import BASE_URL, MOVIE_INFO_URL, find_movie_quality, find_series_season, SUBTITLE_URL, ENGLISH_PREFIX, PERSIAN_PREFIX, TMDB_BEARER_TOKEN
+from constants import (
+    SUBTITLE_URL,
+    ENGLISH_PREFIX,
+    PERSIAN_PREFIX,
+    BASE_URL,
+    MOVIE_INFO_URL,
+)
+from utils import find_movie_quality, find_series_season, get_last_movie_id
+
 
 
 def connect_to_database():
@@ -38,42 +46,6 @@ def connect_to_database():
 
         else:
             return err
-
-
-def get_last_movie_id() -> str:
-    """
-    Read Last Row ID from file. If the file does not exist or is empty,
-    initialize it with '1' and return '1'.
-
-    Returns:
-        str: The last movie ID as a string.
-    """
-
-    try:
-        with open('last_movie_id.txt', 'r') as file:
-            last_row_id = file.read()
-        return last_row_id
-    
-    except FileNotFoundError:
-        with open('last_movie_id.txt', 'w') as file:
-            file.write('1')
-        return '1'
-
-
-def update_last_movie_id(movie_id: str) -> str:
-    """
-    Rewrite the file with the last movie_id.
-
-    Args:
-        movie_id (str): The movie ID to be written to the file.
-
-    Returns:
-        str: The movie ID that was written to the file.
-    """
-
-    with open('last_movie_id.txt', 'w') as file:
-        file.write(str(movie_id))
-    return movie_id
 
 
 def create_user_record(data: tuple) -> int:
@@ -170,41 +142,6 @@ def get_movie_imdb_info(movie: str, api_key: str) -> Dict:
     return response.json()
 
 
-def normalized_imdb_info(movie_info: dict) -> dict:
-    """
-    Create a Beautiful Dictionary From JSON response
-
-    Args:
-        movie_info: dict
-    
-    Returns:
-        dict
-    """
-
-    result = {
-        '🏷️ Title': movie_info.get('Title'),
-        '🗓️Year': movie_info.get('Year'),
-        '🔗 Type': movie_info.get('Type'),
-        'Ʀ Rated': movie_info.get('Rated'),
-        '📅 Released': movie_info.get('Released'),
-        '🕥 Length': movie_info.get('Runtime'),
-        '📚 Genre': movie_info.get('Genre'),
-        '🎬 Director': movie_info.get('Director'),
-        '✍🏻 Writer': movie_info.get('Writer'),
-        '🎭 Actors': movie_info.get('Actors'),
-        '📖 Plot': movie_info.get('Plot'),
-        '💬 Language': movie_info.get('Language'),
-        '🌎 Country': movie_info.get('Country'),
-        '🏅 Awards': movie_info.get('Awards'),
-        '🌇 Poster': movie_info.get('Poster'),
-        '📊 Metacritic': movie_info.get('Metascore'),
-        '📊 imdbRating': movie_info.get('imdbRating'),
-        '🗳 imdbVotes': movie_info.get('imdbVotes'),
-        '💰 BoxOffice': movie_info.get('BoxOffice'),
-    }
-    return result
-
-
 def is_duplicate(movie_name: str) -> bool | str:
     """
     Get a single arg as movie_name, query the name that movie
@@ -272,8 +209,10 @@ def create_record_for_movies(val: list[tuple], has_published_date: bool = False)
         cnx = connect_to_database()
         cursor = cnx.cursor()
         cursor.executemany(sql_command, val)
+        inserted_rows = cursor.rowcount
         cnx.commit()
         cnx.close()
+        return inserted_rows
         
     except mysql.connector.Error as err:
         return f'We faced an error: {err}'
@@ -301,9 +240,10 @@ def create_record_for_movie_links(records: List[tuple]) -> int | str:
         cnx = connect_to_database()
         cursor = cnx.cursor()
         cursor.executemany(sql_command, records)
+        inserted_rows = cursor.rowcount
         cnx.commit()
         cnx.close()
-        return cursor.rowcount
+        return inserted_rows
     
     except mysql.connector.Error as err:
         return f'We faced an error: {err}'
@@ -523,35 +463,6 @@ def get_series_data(record: tuple) -> None:
         create_record_for_movie_links(records_to_insert)
 
 
-def movie_data_normalizer(movies: List[Dict]) -> List[Dict]:
-    """
-    Get a single arg as movies
-    iterate on the given list
-    create a dictionary for each object
-    get neccessary data and append them to a new list
-    finally returns a list of dict.
-    
-    Args:
-        movies: list(dict)
-
-    Returns:
-        list(dict)
-    """
-
-    data = list()
-    for movie in movies:
-        movie_info = {
-            'link': f'{movie.get("link")}\n',
-            'quality_and_codec': f'{movie.get("quality")} - {movie.get("codec")}',
-            'name': movie.get('name'),
-            'published_at': movie.get('published_at'),
-            'subtitle_url': movie.get('subtitle_url'),
-            }
-        data.append(movie_info)
-
-    return data
-
-
 def get_movies_from_db() -> List[tuple]:
     """
     Read records from Database 
@@ -605,10 +516,11 @@ def clear_trending_movie() -> int:
     conx = connect_to_database()
     cursor = conx.cursor()
     cursor.execute(sql_command)
+    updated_rows = cursor.rowcount
     conx.commit()
     cursor.close()
     conx.close()
-    return cursor.rowcount
+    return updated_rows
 
 
 def mark_trending_movie(movie_title: str) -> int:
@@ -628,10 +540,11 @@ def mark_trending_movie(movie_title: str) -> int:
     conx = connect_to_database()
     cursor = conx.cursor()
     cursor.execute(sql_command, (movie_title,))
+    updated_rows = cursor.rowcount
     conx.commit()
     cursor.close()
     conx.close()
-    return cursor.rowcount
+    return updated_rows
 
 
 def get_trending_movies(authorization: str) -> dict:
