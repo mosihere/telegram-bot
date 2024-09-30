@@ -1,6 +1,7 @@
 import sys
-from utils import get_datetime_info
-from dal import get_movie_data, get_series_data, get_movie_from_db_by_id, get_movies_from_db, update_last_movie_id
+from utils import get_datetime_info, update_last_movie_id
+from dal import get_movie_data, get_series_data, get_movie_from_db_by_id, get_movies_from_db
+
 
 
 def extract_movie_links(movie_id: str) -> None:
