@@ -130,12 +130,10 @@ def ready_for_insert(movies: list) -> tuple:
             data = (url, movie_name)
             movies_data.append(data)
 
-    crawled_counter = len(movies_data) + len(movies_with_published_date)
-
-    create_record_for_movies(movies_data)
-    create_record_for_movies(movies_with_published_date, has_published_date=True)
-
-    return duplicate_counter, crawled_counter
+    crawled_movie = create_record_for_movies(movies_data)
+    crawled_series = create_record_for_movies(movies_with_published_date, has_published_date=True)
+    crawled_movies_and_series = crawled_movie + crawled_series
+    return duplicate_counter, crawled_movies_and_series
 
 
 async def main():

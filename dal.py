@@ -174,7 +174,7 @@ def is_duplicate(movie_name: str) -> bool | str:
         return f'Something failed: {err}'
 
 
-def create_record_for_movies(val: list[tuple], has_published_date: bool = False) -> None | str:
+def create_record_for_movies(val: list[tuple], has_published_date: bool = False) -> int | str:
     """
     Get two args as val and has_published_date
     if has_published_date:
@@ -187,7 +187,7 @@ def create_record_for_movies(val: list[tuple], has_published_date: bool = False)
         has_published_at: bool -> (default=False)
 
     Returns:
-        None | str(Error)
+        int | str(Error)
     """
 
     if has_published_date:
@@ -212,7 +212,7 @@ def create_record_for_movies(val: list[tuple], has_published_date: bool = False)
         inserted_rows = cursor.rowcount
         cnx.commit()
         cnx.close()
-        return inserted_rows
+        return inserted_rows if inserted_rows > 0 else 0
         
     except mysql.connector.Error as err:
         return f'We faced an error: {err}'
