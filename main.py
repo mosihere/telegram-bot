@@ -145,7 +145,7 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         final_result = list()
         movie_name = data.split(":")[1]
         cleaned_movie_name = clean_movie_name_for_api(movie_name)
-        movie_info = get_movie_imdb_info(cleaned_movie_name, API_KEY)
+        movie_info = await get_movie_imdb_info(cleaned_movie_name, API_KEY)
         result = normalized_imdb_info(movie_info)
         
         for key, value in result.items():

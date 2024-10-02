@@ -137,9 +137,10 @@ def remove_user_from_db(telegram_id: str, user_database_id: str) -> None:
         print(f'Something failed: {err}')
 
 
-def get_movie_imdb_info(movie: str, api_key: str) -> Dict:
-    response = requests.get(f'{MOVIE_INFO_URL}/?t={movie}&apikey={api_key}')
-    return response.json()
+async def get_movie_imdb_info(movie: str, api_key: str) -> dict:
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f'{MOVIE_INFO_URL}/?t={movie}&apikey={api_key}') as response:
+            return await response.json()
 
 
 def is_duplicate(movie_name: str) -> bool | str:
