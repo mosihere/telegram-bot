@@ -2,9 +2,9 @@ import random
 import asyncio
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 from constants import TMDB_BEARER_TOKEN
+from utils import clean_movie_name_for_api
 from messengers import send_message_to_all_users
 from dal import suggest_trending_movies, clear_trending_movie, mark_trending_movie, get_trending_movies
-
 
 
 async def send_trending_movies() -> None:
@@ -38,7 +38,8 @@ def send_automatic_trending():
     clear_trending_movie()
     trend_movies = get_trending_movies(authorization=TMDB_BEARER_TOKEN)
     for element in trend_movies:
-        cleaned_movie_name = element['title']
+        movie_name = element['title']
+        cleaned_movie_name = clean_movie_name_for_api(movie_name)
         mark_trending_movie(cleaned_movie_name)
 
     asyncio.run(send_trending_movies())
