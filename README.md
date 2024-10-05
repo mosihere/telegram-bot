@@ -15,6 +15,8 @@ A telegram bot created using Python -> Python-telegram-bot library
 9. Get Movie Informations such as IMDB rating, Plot, Director and ...
 10. Movie Posters Added.
 11. Persian Subtitle Added.
+12. Suggest 5 Trending Movies Weekly
+13. Suggest Manually a new released Movie
 
 ## Sample
 
