@@ -582,7 +582,7 @@ def suggest_trending_movies() -> List[tuple] | None:
         List(Tuple): Movie Records | None
     """
     
-    sql_command = """ SELECT * FROM movies_movie WHERE trending = 1 """
+    sql_command = """ SELECT id, name FROM movies_movie WHERE trending = 1 """
     conx = connect_to_database()
     cursor = conx.cursor()
     cursor.execute(sql_command)
