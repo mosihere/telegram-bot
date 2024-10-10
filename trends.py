@@ -27,7 +27,7 @@ async def send_trending_movies() -> None:
 
 async def send_suggested_movie(movie_id: int, movie_name: str) -> None:
     """Send a message with a specific movie and button for download links."""
-    message = "<b>فیلم پیشنهادی ما\n🔥 Platform 2 🔥 </b>"
+    message = "<b>🔥 فیلم پیشنهادی ما 🔥</b>"
     keyboard = [[InlineKeyboardButton(text=movie_name, callback_data=f"trending_links:{movie_id}")]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     await send_message_to_all_users(message, reply_markup, parse_mode='HTML')
