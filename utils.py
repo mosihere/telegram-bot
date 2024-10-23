@@ -1,7 +1,46 @@
 import re
 from typing import Dict, List
 from datetime import datetime
+import aiohttp
 
+
+
+async def make_request(url: str, method: str, params: dict=None, payload: dict=None) -> dict:
+    """
+    An async function that send HTTP request to api endpoint based on methods
+    and return awaited JSON result.
+
+    Args:
+        url: str
+        method: str (HTTP METHOD --> GET, POST, PATCH, PUT ...)
+        params: dict --> {'search': 'night swim'}
+        payload: dict --> {'user_id': 1}
+
+    Returns:
+        Dict: Deserialized JSON response (dictionary)
+    """
+
+    async with aiohttp.ClientSession() as session:
+        if method.upper() == 'GET':
+            async with session.get(url, params=params) as response:
+                return await response.json()
+        elif method.upper() == 'POST':
+            async with session.post(url, json=payload) as response:
+                return await response.json()
+        elif method.upper() == 'PUT':
+            async with session.put(url, json=payload) as response:
+                return await response.json()
+
+        elif method.upper() == 'PATCH':
+            async with session.patch(url, json=payload) as response:
+                return await response.json()
+
+        elif method.upper() == 'DELETE':
+            async with session.delete(url) as response:
+                if response.status == 204:
+                    return {'detail': 'record deleted successfully'}
+                else:
+                    return {'detail': 'something went wrong!'}
 
 
 def clean_movie_name_for_api(movie_name: str) -> str:
