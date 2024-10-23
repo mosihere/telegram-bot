@@ -616,9 +616,9 @@ def get_user_from_db_by_telegram_id(telegram_id: str) -> tuple | None:
     return None
 
 
-def update_user_last_use(datetime_info: str, user_id: int) -> None:
+async def update_user_last_use(datetime_info: str, user_id: int) -> None:
     """
-    Update last_use field of User Record based on ID of user in database
+    Update last_use field of User based on ID of the user
     Whenever User Search in Bot or Start the Bot.
 
     Args:
@@ -626,20 +626,12 @@ def update_user_last_use(datetime_info: str, user_id: int) -> None:
         user_id: int
 
     Returns:
-        None
+        dict: (Updated Record)
     """
 
-    sql_command = f"""
-            UPDATE movies_user
-            SET last_use = %s
-            WHERE id = %s
-            """
-    conx = connect_to_database()
-    cursor = conx.cursor()
-    cursor.execute(sql_command, (datetime_info, user_id))
-    conx.commit()
-    cursor.close()
-    conx.close()
+    payload = {'last_use': datetime_info}
+    response = await make_request(f'http://127.0.0.1:8000/api/users/{user_id}/', method='PATCH', payload=payload)
+    return response
 
 
 async def movie_endpoint(name: str) -> dict:

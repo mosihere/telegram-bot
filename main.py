@@ -25,7 +25,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     username = user.username
 
     if user_id:= get_user_from_db_by_telegram_id(telegram_id):
-        update_user_last_use(datetime_info, user_id)
+        await update_user_last_use(datetime_info, user_id)
     
     else:
         first_name = user.first_name
@@ -106,7 +106,7 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     datetime_info = get_datetime_info(compatible_with_db=True)
 
     if database_user_id:
-        update_user_last_use(datetime_info, database_user_id)
+        await update_user_last_use(datetime_info, database_user_id)
 
     else:
         username = user_object.username
@@ -114,7 +114,7 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         last_name = user_object.last_name
         last_use = datetime_info
         user_data = (telegram_user_id, username, first_name, last_name, datetime_info, last_use)
-        database_user_id = create_user_record(user_data)
+        database_user_id = await create_user_record(user_data)
 
     user_search_data = (query, datetime_info, database_user_id)
     create_user_search_record(user_search_data)

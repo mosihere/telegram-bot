@@ -80,7 +80,7 @@ def movie_data_normalizer(movies: List[Dict]) -> List[Dict]:
         movie_info = {
             'link': f'{movie.get("link")}\n',
             'quality_and_codec': f'{movie.get("quality")} - {movie.get("codec")}',
-            'name': movie.get('name'),
+            'name': movie.get('movie_name'),
             'published_at': movie.get('published_at'),
             'subtitle_url': movie.get('subtitle_url'),
             }
@@ -176,7 +176,7 @@ def get_datetime_info(compatible_with_db = False) -> Dict | str:
     datetime_info = datetime.now()
 
     if compatible_with_db:
-        return datetime_info.strftime('%Y-%m-%d %H:%M:%S')
+        return datetime_info.strftime('%Y-%m-%dT%H:%M:%S')
     
     return {
         'year': datetime_info.year,
