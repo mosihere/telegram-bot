@@ -30,10 +30,14 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     else:
         first_name = user.first_name
         last_name = user.last_name
-        last_use = datetime_info
 
-        user_data = (telegram_id, username, first_name, last_name, datetime_info, last_use)
-        create_user_record(user_data)
+        user_data = {
+            'telegram_id': telegram_id,
+            'username': username,
+            'first_name': first_name,
+            'last_name': last_name,
+        }
+        await create_user_record(user_data)
 
     if username:
         await update.message.reply_text(

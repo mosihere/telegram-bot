@@ -13,7 +13,7 @@ from constants import (
     BASE_URL,
     MOVIE_INFO_URL,
 )
-from utils import find_movie_quality, find_series_season, get_last_movie_id
+from utils import find_movie_quality, find_series_season, get_last_movie_id, make_request
 
 
 
@@ -48,35 +48,20 @@ def connect_to_database():
             return err
 
 
-def create_user_record(data: tuple) -> int:
+async def create_user_record(payload: dict) -> dict:
     """
     Creating User record
-    get user info from start command and populate database
+    get user info from start command and send a POST request to users endpoint
 
     Args:
-        data: tuple (user info)
+        payload: dict (user info)
     
     Returns:
-        int: last row ID
+        dict: created_user_record
     """
 
-    sql_command = """
-            INSERT INTO movies_user (
-                telegram_id, username, first_name, last_name, created_at, last_use
-            )
-            VALUES (%s, %s, %s, %s, %s, %s)
-            """
-    try:
-        cnx = connect_to_database()
-        cursor = cnx.cursor()
-        cursor.execute(sql_command, data)
-        cnx.commit()
-        cursor.close()
-        cnx.close()
-        return cursor.lastrowid
-    
-    except mysql.connector.Error as err:
-        print(f'Something failed: {err}')
+    response = await make_request('http://127.0.0.1:8000/api/users/', method='POST', payload=payload)
+    return response
 
 
 def create_user_search_record(data: tuple) -> None:
