@@ -138,7 +138,7 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
         # Get DateTime Info
         datetime_info = get_datetime_info(compatible_with_db=True)
-        update_user_last_use(datetime_info, database_user_id)
+        await update_user_last_use(datetime_info, database_user_id)
 
     elif data.startswith("links:"):
         movie_id = data.split(":")[1]
