@@ -81,8 +81,8 @@ def movie_data_normalizer(movies: List[Dict]) -> List[Dict]:
             'link': f'{movie.get("link")}\n',
             'quality_and_codec': f'{movie.get("quality")} - {movie.get("codec")}',
             'name': movie.get('movie_name'),
-            'published_at': movie.get('published_at'),
-            'subtitle_url': movie.get('subtitle_url'),
+            'published_at': movie.get('movie_published_at'),
+            'subtitle_url': movie.get('movie_subtitle_url'),
             }
         data.append(movie_info)
 
