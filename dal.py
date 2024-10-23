@@ -94,32 +94,19 @@ def create_user_search_record(data: tuple) -> None:
         print(f'Something failed: {err}')
 
 
-def remove_user_from_db(telegram_id: str, user_database_id: str) -> None:
+async def remove_user_from_db(user_database_id: str) -> dict:
     """
     Delete Both User and User-Records of Someone Who Blocks Bot.
 
     Args:
-        telegram_id: str
         user_database_id: str
     
     Returns:
-        None
+        dict
     """
 
-    sql_command_user_search = """ DELETE FROM movies_usersearch WHERE user_id = %s """
-    sql_command_user = """ DELETE FROM movies_user WHERE telegram_id = %s """
-
-    try:
-        cnx = connect_to_database()
-        cursor = cnx.cursor()
-        cursor.execute(sql_command_user_search, (user_database_id, ))
-        cursor.execute(sql_command_user, (telegram_id, ))
-        cnx.commit()
-        cursor.close()
-        cnx.close()
-    
-    except mysql.connector.Error as err:
-        print(f'Something failed: {err}')
+    response = await make_request(f'http://127.0.0.1:8000/api/users/{user_database_id}', method='DELETE')
+    return response
 
 
 async def get_movie_imdb_info(movie: str, api_key: str) -> dict:

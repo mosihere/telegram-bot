@@ -40,7 +40,7 @@ async def send_message_to_all_users(message: str, reply_markup=None, parse_mode=
             print(f'Timeout error while sending message to {telegram_id}. Skipping user for now.')
         except Forbidden:
             # When the bot is blocked, delete the user from the database
-            remove_user_from_db(telegram_id=telegram_id, user_database_id=user_database_id)
+            await remove_user_from_db(user_database_id=user_database_id)
             print(f'Failed to send message to {telegram_id} (bot blocked). User deleted!')
         except NetworkError as e:
             print(f'Network error: {e}. Retrying later for {telegram_id}.')
