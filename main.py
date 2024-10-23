@@ -116,8 +116,11 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         user_data = (telegram_user_id, username, first_name, last_name, datetime_info, last_use)
         database_user_id = await create_user_record(user_data)
 
-    user_search_data = (query, datetime_info, database_user_id)
-    create_user_search_record(user_search_data)
+    user_search_data = {
+        'user': database_user_id,
+        'query': query,
+    }
+    await create_user_search_record(user_search_data)
 
     await update.inline_query.answer(inline_options)
 

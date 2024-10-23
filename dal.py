@@ -64,34 +64,21 @@ async def create_user_record(payload: dict) -> dict:
     return response
 
 
-def create_user_search_record(data: tuple) -> None:
+async def create_user_search_record(payload: dict) -> None:
     """
     Creating User searcg record
-    get user search detail from inline-query search and populate database
+    get user search detail from inline-query search
+    send a POST request to the endpoint to create user-search record.
 
     Args:
-        data: tuple (user search info)
+        payload: dict (user search info)
     
     Returns:
-        None
+        dict
     """
 
-    sql_command = """
-            INSERT INTO movies_usersearch (
-                query, timestamp, user_id
-            )
-            VALUES (%s, %s, %s)
-            """
-    try:
-        cnx = connect_to_database()
-        cursor = cnx.cursor()
-        cursor.execute(sql_command, data)
-        cnx.commit()
-        cursor.close()
-        cnx.close()
-    
-    except mysql.connector.Error as err:
-        print(f'Something failed: {err}')
+    response = await make_request('http://127.0.0.1:8000/api/user-searches/', method='POST', payload=payload)
+    return response
 
 
 async def remove_user_from_db(user_database_id: str) -> dict:
