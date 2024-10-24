@@ -13,7 +13,7 @@ httpx==0.24.1
 idna==3.7
 iniconfig==2.0.0
 multidict==6.0.5
-mysql-connector-python==8.1.0
+mysql-connector-python==9.1.0
 packaging==24.0
 pluggy==1.4.0
 protobuf==4.21.12
