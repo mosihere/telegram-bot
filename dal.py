@@ -61,6 +61,10 @@ async def create_user_record(payload: dict) -> dict:
     """
 
     response = await make_request('http://127.0.0.1:8000/api/users/', method='POST', payload=payload)
+
+    if 'error' in response:
+        print("Error creating user record:", response['error'])
+
     return response
 
 
@@ -78,6 +82,10 @@ async def create_user_search_record(payload: dict) -> None:
     """
 
     response = await make_request('http://127.0.0.1:8000/api/user-searches/', method='POST', payload=payload)
+
+    if 'error' in response:
+        print("Error creating user search record:", response['error'])
+
     return response
 
 
@@ -93,6 +101,10 @@ async def remove_user_from_db(user_database_id: str) -> dict:
     """
 
     response = await make_request(f'http://127.0.0.1:8000/api/users/{user_database_id}', method='DELETE')
+
+    if 'error' in response:
+        print("Error deleting user:", response['error'])
+
     return response
 
 

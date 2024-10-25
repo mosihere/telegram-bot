@@ -2,46 +2,57 @@ import re
 from typing import Dict, List
 from datetime import datetime
 import aiohttp
+from aiohttp import ClientError, ContentTypeError
 
 
 
 async def make_request(url: str, method: str, params: dict=None, payload: dict=None) -> dict:
     """
-    An async function that send HTTP request to api endpoint based on methods
+    An async function to send HTTP request to an API endpoint based on methods
     and return awaited JSON result.
 
     Args:
-        url: str
-        method: str (HTTP METHOD --> GET, POST, PATCH, PUT ...)
-        params: dict --> {'search': 'night swim'}
-        payload: dict --> {'user_id': 1}
+        url (str): API endpoint URL
+        method (str): HTTP method (GET, POST, PATCH, PUT, DELETE)
+        params (dict, optional): Query parameters for GET requests
+        payload (dict, optional): Data payload for POST, PUT, PATCH requests
 
     Returns:
-        Dict: Deserialized JSON response (dictionary)
+        dict: Deserialized JSON response or error message
     """
 
     async with aiohttp.ClientSession() as session:
-        if method.upper() == 'GET':
-            async with session.get(url, params=params) as response:
-                return await response.json()
-        elif method.upper() == 'POST':
-            async with session.post(url, json=payload) as response:
-                return await response.json()
-        elif method.upper() == 'PUT':
-            async with session.put(url, json=payload) as response:
-                return await response.json()
+        try:
+            if method.upper() == 'GET':
+                async with session.get(url, params=params) as response:
+                    return await response.json()
+            elif method.upper() == 'POST':
+                async with session.post(url, json=payload) as response:
+                    return await response.json()
+            elif method.upper() == 'PUT':
+                async with session.put(url, json=payload) as response:
+                    return await response.json()
 
-        elif method.upper() == 'PATCH':
-            async with session.patch(url, json=payload) as response:
-                return await response.json()
+            elif method.upper() == 'PATCH':
+                async with session.patch(url, json=payload) as response:
+                    return await response.json()
 
-        elif method.upper() == 'DELETE':
-            async with session.delete(url) as response:
-                if response.status == 204:
-                    return {'detail': 'record deleted successfully'}
-                else:
-                    return {'detail': 'something went wrong!'}
-
+            elif method.upper() == 'DELETE':
+                async with session.delete(url) as response:
+                    if response.status == 204:
+                        return {'detail': 'record deleted successfully'}
+                    else:
+                        return {'detail': 'something went wrong!'}
+                    
+        except ContentTypeError:
+            return {'error': 'Unexpected response format, expected JSON'}
+        
+        except ClientError as e:
+            return {'error': str(e)}
+        
+        except Exception as e:
+            return {'error': f'An unexpected error occurred: {e}'}
+        
 
 def clean_movie_name_for_api(movie_name: str) -> str:
     """
