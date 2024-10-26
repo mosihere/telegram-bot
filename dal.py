@@ -620,7 +620,7 @@ async def update_user_last_use(datetime_info: str, user_id: int) -> None:
     return response
 
 
-async def movie_endpoint(name: str) -> dict:
+async def movie_endpoint(name: str, telegram_id: int) -> dict:
     """
     Get a single arg as name
     send a request to specified endpoint and set name parameter as query_string
@@ -632,9 +632,17 @@ async def movie_endpoint(name: str) -> dict:
         Dict
     """
 
-    async with aiohttp.ClientSession() as session:
+    headers = {}
+    if telegram_id:
+        headers['X-Telegram-User-ID'] = str(telegram_id)
+
+    async with aiohttp.ClientSession(headers=headers) as session:
         async with session.get(f'http://127.0.0.1:8000/api/movies/?search={name}') as response:
+            if response.status == 429:
+                return [{"id": "rate_limit", "name": "Rate limit exceeded. Please try again later.", "description": ""}]
+            
             return await response.json()
+        return await response.json()
 
 
 async def movie_links_endpoint(movie_id: int, telegram_id: int = None) -> list[dict]:
