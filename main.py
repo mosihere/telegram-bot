@@ -135,10 +135,10 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
             'first_name': first_name,
             'last_name': last_name
             }
-        database_user_id = await create_user_record(user_data)
+        result = await create_user_record(user_data)
 
     user_search_data = {
-        'user': database_user_id,
+        'user': result.get('id'),
         'query': query,
     }
     await create_user_search_record(user_search_data)
