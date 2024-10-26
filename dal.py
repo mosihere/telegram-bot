@@ -642,7 +642,6 @@ async def movie_endpoint(name: str, telegram_id: int) -> dict:
                 return [{"id": "rate_limit", "name": "Rate limit exceeded. Please try again later.", "description": ""}]
             
             return await response.json()
-        return await response.json()
 
 
 async def movie_links_endpoint(movie_id: int, telegram_id: int = None) -> list[dict]:
