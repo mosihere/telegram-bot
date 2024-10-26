@@ -73,29 +73,46 @@ async def movie_info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 
 
 async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Handle the inline query. This is run when you type: @botusername <query>"""
     query = update.inline_query.query
+    telegram_id = update.inline_query.from_user.id
+
     if len(query) < 3:
         return
+
     inline_options = []
-    for movie in await search_movie(query.replace(' ', '-')):
-        movie_id = movie.get('id')
-        movie_name = movie.get('name')
-        poster_url=movie.get('poster_url')
+    movie_results = await search_movie(query.replace(' ', '-'), telegram_id)
+
+    # Check if the result indicates a rate limit was exceeded
+    if movie_results and movie_results[0].get('id') == "rate_limit":
         inline_options.append(
             InlineQueryResultArticle(
-                id=str(movie_id),
-                title=movie.get('name'),
-                thumbnail_url=poster_url,
-                input_message_content=InputTextMessageContent(movie['name']),
-                description=movie.get('description', ''),
-                reply_markup=InlineKeyboardMarkup([
-                    [InlineKeyboardButton("لینک های دانلود", callback_data=f"links:{movie_id}")],
-                    [InlineKeyboardButton("اطلاعات فیلم", callback_data=f"info:{movie_name}")]
-                ])
+                id="rate_limit_notice",
+                title="Rate limit exceeded",
+                input_message_content=InputTextMessageContent("You've reached the rate limit. Please try again later."),
+                description="Too many requests. Please wait a few moments.",
             )
         )
+    else:
+        for movie in movie_results:
+            movie_id = movie.get('id')
+            movie_name = movie.get('name')
+            poster_url = movie.get('poster_url')
+            inline_options.append(
+                InlineQueryResultArticle(
+                    id=str(movie_id),
+                    title=movie_name,
+                    thumbnail_url=poster_url,
+                    input_message_content=InputTextMessageContent(movie_name),
+                    description=movie.get('description', ''),
+                    reply_markup=InlineKeyboardMarkup([
+                        [InlineKeyboardButton("لینک های دانلود", callback_data=f"links:{movie_id}")],
+                        [InlineKeyboardButton("اطلاعات فیلم", callback_data=f"info:{movie_name}")]
+                    ])
+                )
+            )
     
+    await update.inline_query.answer(inline_options)
+
     # Get User Info
     inline_query = update.inline_query
     user_object = inline_query.from_user
@@ -177,8 +194,8 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await context.bot.send_message(chat_id=query.from_user.id, text='\n\n'.join(final_result))
 
 
-async def search_movie(title: str):
-    movie = await movie_endpoint(title)
+async def search_movie(title: str, telegram_id: int):
+    movie = await movie_endpoint(title, telegram_id)
     return movie
 
 
