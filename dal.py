@@ -20,9 +20,6 @@ from utils import find_movie_quality, find_series_season, get_last_movie_id, mak
 def connect_to_database():
     """
     Connecting to Database
-    
-    Args:
-        None
 
     Returns:
         MySQL-connection
@@ -68,7 +65,7 @@ async def create_user_record(payload: dict) -> dict:
     return response
 
 
-async def create_user_search_record(payload: dict) -> None:
+async def create_user_search_record(payload: Dict) -> Dict:
     """
     Creating User searcg record
     get user search detail from inline-query search
@@ -117,7 +114,7 @@ async def get_movie_imdb_info(movie: str, api_key: str) -> dict:
 def is_duplicate(movie_name: str) -> bool | str:
     """
     Get a single arg as movie_name, query the name that movie
-    if exists and return a id:
+    if exists and return an id:
         return True
     else:
         return False
@@ -380,7 +377,7 @@ def get_movie_data(record: tuple) -> bool:
 def get_series_data(record: tuple) -> None:
     """
     Get a single arg as record
-    request the given url, seprate season url with regex
+    request the given url, separate season url with regex
     iterate on founded direct seasons links to find season number
     and then creating a movie_record.
     
@@ -627,6 +624,7 @@ async def movie_endpoint(name: str, telegram_id: int) -> dict:
     
     Args:
         name: str
+        telegram_id: int
 
     Returns:
         Dict
@@ -651,6 +649,7 @@ async def movie_links_endpoint(movie_id: int, telegram_id: int = None) -> list[d
     
     Args:
         movie_id: int
+        telegram_id: int
 
     Returns:
         Dict

@@ -56,7 +56,7 @@ async def make_request(url: str, method: str, params: dict=None, payload: dict=N
 
 def clean_movie_name_for_api(movie_name: str) -> str:
     """
-    Removes the year suffix (e.g., '-2024') and replace ( '-' with ' ') from the movie name if present.
+    Removes the year suffix (e.g., '-2024') and replace ( '-' with space) from the movie name if present.
 
     Args:
         movie_name: str
@@ -76,7 +76,7 @@ def movie_data_normalizer(movies: List[Dict]) -> List[Dict]:
     Get a single arg as movies
     iterate on the given list
     create a dictionary for each object
-    get neccessary data and append them to a new list
+    get necessary data and append them to a new list
     finally returns a list of dict.
     
     Args:
@@ -211,11 +211,11 @@ def find_movie_quality(link: list) -> list:
         list
     """
 
-    quality = re.findall(r'[0-9]{3,4}[p]',link)
+    quality = re.findall(r'[0-9]{3,4}p',link)
     return quality
 
 
-def find_series_season(link: list):
+def find_series_season(link: str):
     """
     Get a single arg as link
     find and return list of season numbers.
