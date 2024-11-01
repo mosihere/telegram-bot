@@ -642,13 +642,13 @@ async def movie_endpoint(name: str, telegram_id: int) -> List[dict]:
             return await response.json()
 
 
-async def movie_links_endpoint(movie_id: int, telegram_id: int = None) -> list[dict]:
+async def movie_links_endpoint(movie_id: str, telegram_id: int = None) -> list[dict]:
     """
     Get a single arg as name
     send a request to specified endpoint and set name parameter as query_string
     
     Args:
-        movie_id: int
+        movie_id: str
         telegram_id: int
 
     Returns:
