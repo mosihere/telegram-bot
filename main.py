@@ -1,6 +1,6 @@
 import re
 from telegram import Update, InlineQueryResultArticle, InputTextMessageContent, InlineKeyboardMarkup, InlineKeyboardButton
-from telegram.ext import CommandHandler, ContextTypes, MessageHandler, filters, InlineQueryHandler, CallbackQueryHandler
+from telegram.ext import CommandHandler, ContextTypes, InlineQueryHandler, CallbackQueryHandler
 from bot_instance import bot
 from constants import API_KEY
 from utils import get_datetime_info, clean_movie_name_for_api, movie_data_normalizer, normalized_imdb_info
@@ -170,7 +170,7 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             'first_name': first_name,
             'last_name': last_name
             }
-        database_user_id = await create_user_record(user_data)
+        await create_user_record(user_data)
 
     if data.startswith("trending_links:"):
         movie_id = data.split(":")[1]

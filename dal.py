@@ -67,7 +67,7 @@ async def create_user_record(payload: dict) -> dict:
 
 async def create_user_search_record(payload: Dict) -> Dict:
     """
-    Creating User searcg record
+    Creating User search record
     get user search detail from inline-query search
     send a POST request to the endpoint to create user-search record.
 
@@ -153,7 +153,7 @@ def create_record_for_movies(val: list[tuple], has_published_date: bool = False)
     
     Args:
         val: list
-        has_published_at: bool -> (default=False)
+        has_published_date: bool -> (default=False)
 
     Returns:
         int | str(Error)
@@ -338,7 +338,7 @@ def set_movie_poster(movie_id: str, poster_url: str) -> None:
 def get_movie_data(record: tuple) -> bool:
     """
     Get a single arg as record
-    request the given url, seprate mkv|mp4 file extensions with regex
+    request the given url, separate mkv|mp4 file extensions with regex
     iterate on founded direct mkv|mp4 links to find quality of them
     and then creating a movie_record.
     
@@ -578,12 +578,12 @@ def get_all_users_telegram_ids() -> List[tuple] | None:
     return users
 
 
-def get_user_from_db_by_telegram_id(telegram_id: str) -> tuple | None:
+def get_user_from_db_by_telegram_id(telegram_id: int) -> int | None:
     """
     Read User information by TelegramID
 
     Returns:
-        Tuple | None
+        int | None
     """
 
     sql_command = f""" SELECT id FROM movies_user WHERE telegram_id = %s"""
@@ -599,7 +599,7 @@ def get_user_from_db_by_telegram_id(telegram_id: str) -> tuple | None:
     return None
 
 
-async def update_user_last_use(datetime_info: str, user_id: int) -> None:
+async def update_user_last_use(datetime_info: str, user_id: int) -> dict:
     """
     Update last_use field of User based on ID of the user
     Whenever User Search in Bot or Start the Bot.
@@ -617,7 +617,7 @@ async def update_user_last_use(datetime_info: str, user_id: int) -> None:
     return response
 
 
-async def movie_endpoint(name: str, telegram_id: int) -> dict:
+async def movie_endpoint(name: str, telegram_id: int) -> List[dict]:
     """
     Get a single arg as name
     send a request to specified endpoint and set name parameter as query_string
