@@ -21,28 +21,24 @@ async def make_request(url: str, method: str, params: dict=None, payload: dict=N
         dict: Deserialized JSON response or error message
     """
 
+    method = method.upper()
+    
     async with aiohttp.ClientSession() as session:
         try:
-            if method.upper() == 'GET':
-                async with session.get(url, params=params) as response:
-                    return await response.json()
-            elif method.upper() == 'POST':
-                async with session.post(url, json=payload) as response:
-                    return await response.json()
-            elif method.upper() == 'PUT':
-                async with session.put(url, json=payload) as response:
-                    return await response.json()
+            methods_map = {
+                'GET': session.get,
+                'POST': session.post,
+                'PUT': session.put,
+                'PATCH': session.patch,
+                'DELETE': session.delete
+            }
 
-            elif method.upper() == 'PATCH':
-                async with session.patch(url, json=payload) as response:
-                    return await response.json()
-
-            elif method.upper() == 'DELETE':
-                async with session.delete(url) as response:
-                    if response.status == 204:
+            if method in methods_map:
+                args = {'params': params} if method == 'GET' else {'json': payload}
+                async with methods_map[method](url, **args) as response:
+                    if response.status == 204 and method == 'DELETE':
                         return {'detail': 'record deleted successfully'}
-                    else:
-                        return {'detail': 'something went wrong!'}
+                    return await response.json()
                     
         except ContentTypeError:
             return {'error': 'Unexpected response format, expected JSON'}
@@ -52,7 +48,7 @@ async def make_request(url: str, method: str, params: dict=None, payload: dict=N
         
         except Exception as e:
             return {'error': f'An unexpected error occurred: {e}'}
-        
+
 
 def clean_movie_name_for_api(movie_name: str) -> str:
     """
