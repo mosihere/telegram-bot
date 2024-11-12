@@ -41,6 +41,7 @@ async def make_request(url: str, method: str, params: dict=None, payload: dict=N
                     return await response.json()
                     
         except ContentTypeError:
+            print(f'method -> {method}, params -> {params}, payload -> {payload}')
             return {'error': 'Unexpected response format, expected JSON'}
         
         except ClientError as e:
