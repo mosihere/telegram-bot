@@ -6,7 +6,7 @@ from aiohttp import ClientError, ContentTypeError
 
 
 
-async def sanitize_payload(payload: dict) -> dict:
+def sanitize_payload(payload: dict) -> dict:
     """Sanitizes special characters in 'first_name' and 'last_name' fields."""
 
     if payload:
