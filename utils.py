@@ -6,6 +6,15 @@ from aiohttp import ClientError, ContentTypeError
 
 
 
+async def sanitize_payload(payload: dict) -> dict:
+    """Sanitizes special characters in 'first_name' and 'last_name' fields."""
+
+    if payload:
+        payload['first_name'] = payload.get('first_name', '').encode('utf-8', errors='ignore').decode()
+        payload['last_name'] = payload.get('last_name', '').encode('utf-8', errors='ignore').decode()
+    return payload
+
+
 async def make_request(url: str, method: str, params: dict=None, payload: dict=None) -> dict:
     """
     An async function to send HTTP request to an API endpoint based on methods
@@ -22,7 +31,6 @@ async def make_request(url: str, method: str, params: dict=None, payload: dict=N
     """
 
     method = method.upper()
-    
     async with aiohttp.ClientSession() as session:
         try:
             methods_map = {
@@ -31,7 +39,9 @@ async def make_request(url: str, method: str, params: dict=None, payload: dict=N
                 'PUT': session.put,
                 'PATCH': session.patch,
                 'DELETE': session.delete
-            }
+            }                
+
+            payload = sanitize_payload(payload)
 
             if method in methods_map:
                 args = {'params': params} if method == 'GET' else {'json': payload}
@@ -39,6 +49,8 @@ async def make_request(url: str, method: str, params: dict=None, payload: dict=N
                     if response.status == 204 and method == 'DELETE':
                         return {'detail': 'record deleted successfully'}
                     return await response.json()
+            else:
+                return {'error': 'unsuported http method!'}
                     
         except ContentTypeError:
             print(f'method -> {method}, params -> {params}, payload -> {payload}')
