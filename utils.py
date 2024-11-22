@@ -10,8 +10,12 @@ def sanitize_payload(payload: dict) -> dict:
     """Sanitizes special characters in 'first_name' and 'last_name' fields."""
 
     if payload:
-        payload['first_name'] = payload.get('first_name', '').encode('utf-8', errors='ignore').decode()
-        payload['last_name'] = payload.get('last_name', '').encode('utf-8', errors='ignore').decode()
+        first_name = payload.get('first_name', '')
+        last_name = payload.get('last_name', '')
+
+        payload['first_name'] = (first_name or '').encode('utf-8', errors='ignore').decode()
+        payload['last_name'] = (last_name or '').encode('utf-8', errors='ignore').decode()
+        
     return payload
 
 
