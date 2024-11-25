@@ -23,9 +23,10 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     telegram_id = user.id
     datetime_info = get_datetime_info(compatible_with_db=True)
     username = user.username
-
+    first_name = user.first_name
+    last_name = user.last_name
     if user_id:= get_user_from_db_by_telegram_id(telegram_id):
-        await update_user_last_use(datetime_info, user_id)
+        await update_user_last_use(datetime_info, username, first_name, last_name, user_id)
     
     else:
         first_name = user.first_name
@@ -119,22 +120,24 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     telegram_user_id = user_object.id
     database_user_id = get_user_from_db_by_telegram_id(telegram_user_id)
     
+    username = user_object.username
+    first_name = user_object.first_name
+    last_name = user_object.last_name
+    user_data = {
+        'telegram_id': telegram_user_id,
+        'username': username,
+        'first_name': first_name,
+        'last_name': last_name
+        }
+    
     # Get DateTime Info
     datetime_info = get_datetime_info(compatible_with_db=True)
 
     if database_user_id:
-        await update_user_last_use(datetime_info, database_user_id)
+        await update_user_last_use(datetime_info, username, first_name, last_name, database_user_id)
 
     else:
-        username = user_object.username
-        first_name = user_object.first_name
-        last_name = user_object.last_name
-        user_data = {
-            'telegram_id': telegram_user_id,
-            'username': username,
-            'first_name': first_name,
-            'last_name': last_name
-            }
+
         result = await create_user_record(user_data)
         database_user_id = result.get('id')
 
@@ -154,22 +157,22 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     telegram_user_id = user_object.id
     database_user_id = get_user_from_db_by_telegram_id(telegram_user_id)
 
+    username = user_object.username
+    first_name = user_object.first_name
+    last_name = user_object.last_name
+    user_data = {
+        'telegram_id': telegram_user_id,
+        'username': username,
+        'first_name': first_name,
+        'last_name': last_name
+        }
     # Get DateTime Info
     datetime_info = get_datetime_info(compatible_with_db=True)
 
     if database_user_id:
-        await update_user_last_use(datetime_info, database_user_id)
+        await update_user_last_use(datetime_info, username, first_name, last_name, database_user_id)
 
     else:
-        username = user_object.username
-        first_name = user_object.first_name
-        last_name = user_object.last_name
-        user_data = {
-            'telegram_id': telegram_user_id,
-            'username': username,
-            'first_name': first_name,
-            'last_name': last_name
-            }
         await create_user_record(user_data)
 
     if data.startswith("trending_links:"):

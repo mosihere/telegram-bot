@@ -599,7 +599,7 @@ def get_user_from_db_by_telegram_id(telegram_id: int) -> int | None:
     return None
 
 
-async def update_user_last_use(datetime_info: str, user_id: int) -> dict:
+async def update_user_last_use(datetime_info: str, username: str, first_name: str, last_name: str, user_id: int) -> dict:
     """
     Update last_use field of User based on ID of the user
     Whenever User Search in Bot or Start the Bot.
@@ -612,7 +612,12 @@ async def update_user_last_use(datetime_info: str, user_id: int) -> dict:
         dict: (Updated Record)
     """
 
-    payload = {'last_use': datetime_info}
+    payload = {
+        'last_use': datetime_info,
+        'username': username,
+        'first_name': first_name,
+        'last_name': last_name,
+        }
     response = await make_request(f'http://127.0.0.1:8000/api/users/{user_id}/', method='PATCH', payload=payload)
     return response
 
