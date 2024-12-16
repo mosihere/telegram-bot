@@ -284,6 +284,36 @@ def get_movie_subtitle(record: tuple) -> tuple | None:
             return None
 
 
+def get_movie_trailer_url(record: tuple) -> tuple | None:
+    """
+    Get a single argument as record
+    Unpack result and assign them to variables
+    send a get request to given URL
+    find movie poster
+    return that trailer_url
+
+    Args:
+        record: tuple
+    
+    Returns:
+        tuple(str, str) | None
+    """
+
+    movie_id = record[0]
+    movie_url = record[2]
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
+    response = requests.get(movie_url, headers=headers)
+    pattern = r'https?://[^ ]*trailer[^ ]*\.mp4'
+    match = re.search(pattern, response.text, re.IGNORECASE)
+
+    if match:
+        print(match.group(0))
+        poster_url = match.group(0)
+        return poster_url, movie_id
+
+    return None
+        
+
 def set_movie_subtitle(subtitle_url: str, movie_id: str) -> None:
     """
     UPDATE movies_movie table
@@ -331,6 +361,32 @@ def set_movie_poster(movie_id: str, poster_url: str) -> None:
     conx = connect_to_database()
     cursor = conx.cursor()
     cursor.execute(sql_command, (poster_url, movie_id))
+    conx.commit()
+    conx.close()
+
+
+def set_movie_trailer(movie_id: str, trailer_url: str) -> None:
+    """
+    UPDATE movies_movie table
+    SET trailer_url for record
+
+    Args:
+        trailer_url: str
+        movie_id: str
+
+    Returns:
+        None
+    """
+
+    sql_command = """
+        UPDATE movies_movie
+        SET trailer_url = %s
+        WHERE id = %s
+        """
+    
+    conx = connect_to_database()
+    cursor = conx.cursor()
+    cursor.execute(sql_command, (trailer_url, movie_id))
     conx.commit()
     conx.close()
 
