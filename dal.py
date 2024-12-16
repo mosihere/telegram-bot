@@ -1,9 +1,9 @@
-import os
 import re
 import time
 import aiohttp
 import requests
 import mysql.connector
+from decouple import config
 from typing import List, Dict
 from mysql.connector import errorcode
 from constants import (
@@ -27,10 +27,10 @@ def connect_to_database():
 
     try:
         db = mysql.connector.connect(
-            host="localhost",
-            user="root",
-            password=os.environ.get('DB_PASS'),
-            database="movie"
+            host=config('DB_HOST'),
+            user=config('DB_USER'),
+            password=config('DB_PASS'),
+            database=config('DB')
     )
         return db
     
