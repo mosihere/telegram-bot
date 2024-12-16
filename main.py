@@ -64,7 +64,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 @shodambot enemy
 
-📲 حتی میتوتی به همین روش، توی گروه‌ها و چت خصوصی هم از ربات استفاده کنی! 
+📲 حتی میتونی به همین روش، توی گروه‌ها و چت خصوصی هم از ربات استفاده کنی! 
             """
 )
 

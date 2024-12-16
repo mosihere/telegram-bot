@@ -1,9 +1,9 @@
-import os
+from decouple import config
 import logging
 from telegram.ext import Application
 
 # Retrieve bot token from environment
-TOKEN = os.environ.get('BOT_TOKEN')
+TOKEN = config('BOT_TOKEN')
 
 # Enable logging
 logging.basicConfig(
