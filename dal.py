@@ -238,7 +238,7 @@ def get_movie_poster_url(record: tuple) -> tuple | None:
     movie_site_id = movie_url.split('/')[3]
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
     response = requests.get(movie_url, headers=headers)
-    pattern = rf'{BASE_URL}/wp-content/uploads/poster/.*/{movie_site_id}-[a-zA-Z0-9]+\.webp'
+    pattern = rf'{BASE_URL}/wp-content/uploads/poster/.*/{movie_site_id}-[a-zA-Z0-9]+\.(webp|jpg)'
     match = re.search(pattern, response.text)
 
     if match:
