@@ -306,7 +306,6 @@ def get_movie_trailer_url(record: tuple) -> tuple | None:
     match = re.search(pattern, response.text, re.IGNORECASE)
 
     if match:
-        print(match.group(0))
         poster_url = match.group(0)
         return poster_url, movie_id
 
