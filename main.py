@@ -216,6 +216,8 @@ async def handle_response(movie_id: str, telegram_id: int) -> str:
     movie_name = normalized_data[0].get('name')
     published_date = normalized_data[0].get('published_at')
     subtitle_url = normalized_data[0].get('subtitle_url')
+    trailer_url = normalized_data[0].get('trailer_url')
+
     season_episode_pattern = re.compile(r'[sS]\d{2}[eE]\d{2}')
     collection_pattern = re.compile(r'([^/]+?\.\d{4})|([^/]+\.\d{4}\.\d{4})')
 
@@ -246,11 +248,13 @@ async def handle_response(movie_id: str, telegram_id: int) -> str:
             movie_data_list.append(html_link)
 
     if published_date:
+        movie_data_list.insert(0, f'🎞️ <a href="{trailer_url}">Trailer</a>\n')
         movie_data_list.insert(0, f'🔗 <a href="{subtitle_url}">Subtitle</a>\n')
         movie_data_list.insert(0, f'<b>🍿{movie_name}</b>\n<b>📆 {published_date}</b>\n')
         movie_data_list.insert(0, f'❗️برای دانلود VPN خود را خاموش کنید❗️\n')
 
     else:
+        movie_data_list.insert(0, f'🎞️ <a href="{trailer_url}">Trailer</a>\n')
         movie_data_list.insert(0, f'🔗 <a href="{subtitle_url}">Subtitle</a>\n')
         movie_data_list.insert(0, f'<b>🍿{movie_name}</b>\n')
         movie_data_list.insert(0, f'❗️برای دانلود VPN خود را خاموش کنید❗️\n')
