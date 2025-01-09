@@ -23,7 +23,7 @@ def main():
         if movie_info:
             movie_subtitle = movie_info[0]
             movie_id = movie_info[1]
-            print(f'++ Manually Runned ++\nSubtitle for movie with id: {movie_id} -> Subtitle{movie_subtitle}\nExtracted On: {year:04d}-{month:02d}-{day:02d}\nTime: {hour:02d}:{minute:02d}:{second:02d}\n')
+            print(f'++ Manually Runned ++\nSubtitle for movie with id: {movie_id} -> Subtitle {movie_subtitle}\nExtracted On: {year:04d}-{month:02d}-{day:02d}\nTime: {hour:02d}:{minute:02d}:{second:02d}\n')
             set_movie_subtitle(subtitle_url= movie_subtitle, movie_id=movie_id)
 
     else:
