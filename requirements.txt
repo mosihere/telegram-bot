@@ -8,7 +8,7 @@ bs4==0.0.1
 certifi==2024.7.4
 charset-normalizer==3.2.0
 frozenlist==1.4.1
-h11==0.14.0
+h11==0.16.0
 httpcore==0.17.3
 httpx==0.24.1
 idna==3.7
